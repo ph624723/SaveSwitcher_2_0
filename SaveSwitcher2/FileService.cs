@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -101,8 +102,8 @@ namespace SaveSwitcher2
             FileInfo file = new FileInfo(_activeSavePath);
             using (StreamWriter outputFile = file.CreateText())
             {
-                outputFile.WriteLine(active.Name);
-                outputFile.WriteLine(active.LastChangedDate);
+                outputFile.WriteLine(active != null? active.Name : "");
+                if(active != null) outputFile.WriteLine(active.LastChangedDate);
             }
         }
 
@@ -116,21 +117,30 @@ namespace SaveSwitcher2
         {
             string targetPath = Path.Combine(_storePath, name);
             DirectoryInfo targetDir = new DirectoryInfo(targetPath);
-            if(targetDir.Exists) targetDir.Delete(recursive:true); 
-            targetDir.Create();
-
 
             string sourcePath;
             DirectoryInfo sourceDir;
             if (oldName != null)
             {
                 sourcePath = Path.Combine(_storePath, oldName);
+                if (!new DirectoryInfo(sourcePath).Exists)
+                {
+                    throw new FileNotFoundException("ERROR: Copy not successfull.\nSave profile '" + oldName + "' does not seem to exist.");
+                }
+                if (targetDir.Exists) targetDir.Delete(recursive: true);
+                targetDir.Create();
                 DirectoryCopy(sourcePath, targetDir.FullName);
                 DeleteSaveFile(oldName);
             }
             else
             {
                 sourcePath = savePath;
+                if (!new DirectoryInfo(sourcePath).Exists)
+                {
+                    throw new FileNotFoundException("ERROR: Copy not successfull.\nPath '" + sourcePath + "' does not seem to exist.");
+                }
+                if (targetDir.Exists) targetDir.Delete(recursive: true);
+                targetDir.Create();
                 DirectoryCopy(sourcePath, targetDir.FullName);
             }
         }
@@ -142,9 +152,13 @@ namespace SaveSwitcher2
 
             if (!sourceDir.Exists)
             {
-                throw new FileNotFoundException("Save profile '"+name+"' does not seem to exist.");
+                throw new FileNotFoundException("ERROR: Copy not successfull.\nSave profile '" + name+"' does not seem to exist.");
             }
 
+            if (!new DirectoryInfo(savePath).Exists)
+            {
+                throw new FileNotFoundException("ERROR: Copy not successfull.\nPath '" + savePath + "' does not seem to exist.");
+            }
             ClearDirectory(new DirectoryInfo(savePath));
             DirectoryCopy(sourceDir.FullName,savePath);
             Directory.SetLastWriteTime(sourceDir.FullName,DateTime.Now);

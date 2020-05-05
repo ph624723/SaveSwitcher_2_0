@@ -100,25 +100,37 @@ namespace SaveSwitcher2
             AutoSyncChecked = true;
 
             StoredSave storedActive = FileService.readActive();
-            if (storedActive != null)
+            if (storedActive != null && new DirectoryInfo(SavePath).Exists)
             {
                 ActiveSave = StoredSaves.FirstOrDefault(x => x.Name.Equals(storedActive.Name));
                 if (new DirectoryInfo(SavePath).LastWriteTime > ActiveSave.LastChangedDate)
                 {
                     //MessageBox.Show(new DirectoryInfo(SavePath).LastWriteTime +" " + ActiveSave.LastChangedDate);
                     string tmpName = FileService.FindNewProfileName("Online_Save");
-                    FileService.StoreSaveFile(SavePath, tmpName);
-                    RefreshDataSet();
-                    ActiveSave = StoredSaves.FirstOrDefault(x => x.Name.Equals(tmpName));
-                    FileService.SaveActive(ActiveSave);
+                    try
+                    {
+                        FileService.StoreSaveFile(SavePath, tmpName);
+                        RefreshDataSet();
+                        ActiveSave = StoredSaves.FirstOrDefault(x => x.Name.Equals(tmpName));
+                        FileService.SaveActive(ActiveSave);
 
-                    DialogName = tmpName.ToString();
-                    _dialogBackupName = tmpName.ToString();
-                    DialogSaveEnabled = false;
-                    DialogLabelText =
-                        "Active save seems to be newer than stored backup. \nProbably due to online synchronyzation. \nSelect a profile name for the found data \nor click away for automatic naming.";
-                    IsDialogOpen = true;
+                        DialogName = tmpName.ToString();
+                        _dialogBackupName = tmpName.ToString();
+                        DialogSaveEnabled = false;
+                        DialogLabelText =
+                            "Active save seems to be newer than stored backup. \nProbably due to online synchronyzation. \nSelect a profile name for the found data \nor click away for automatic naming.";
+                        IsDialogOpen = true;
+                    }
+                    catch (FileNotFoundException e)
+                    {
+                        MessageBox.Show(e.Message);
+                        ActiveSave = null;
+                    }
+                    
                 }
+            }else if (!new DirectoryInfo(SavePath).Exists)
+            {
+                DrawerHost.IsTopDrawerOpen = true;
             }
 
             ToggleProcess();
@@ -153,12 +165,32 @@ namespace SaveSwitcher2
                 if (AutoSyncChecked)
                 {
                     ToggleProcess("Game closed. Synchronizing Backup.", true);
-                    FileService.StoreSaveFile(SavePath, ActiveSave.Name);
-                    RefreshDataSet();
+                    try
+                    {
+                        FileService.StoreSaveFile(SavePath, ActiveSave.Name);
+                    }
+                    catch (FileNotFoundException ex)
+                    {
+                        MessageBox.Show(ex.Message);
+                    }
                 }else if(Boolean.Parse((string) await MaterialDesignThemes.Wpf.DialogHost.Show(new MessageContainer("Do you want to refresh the backup for profile '" + ActiveLabelText + "'? (overwrite)"), "YesNoDialog")))
                 {
-
+                    ToggleProcess("Synchronizing Backup.", true);
+                    try
+                    {
+                        FileService.StoreSaveFile(SavePath, ActiveSave.Name);
+                    }
+                    catch (FileNotFoundException ex)
+                    {
+                        MessageBox.Show(ex.Message);
+                    }
                 }
+                else
+                {
+                    FileService.SaveActive(null);
+                    
+                }
+                RefreshDataSet();
                 ToggleProcess();
             }
             catch (Exception ex)
@@ -252,10 +284,21 @@ private void StoredSavesDataGrid_OnSelectionChanged(object sender, SelectionChan
 private void LoadButton_OnClick(object sender, RoutedEventArgs e)
 {
     ToggleProcess("Loading Profile "+SelectedItem.Name, true);
-    FileService.LoadSaveFile(SavePath,SelectedItem.Name);
-    FileService.SaveActive(SelectedItem);
-    RefreshDataSet();
-    ToggleProcess();
+    try
+    {
+        FileService.LoadSaveFile(SavePath, SelectedItem.Name);
+        FileService.SaveActive(SelectedItem);
+        RefreshDataSet();
+        ToggleProcess();
+    }
+    catch (FileNotFoundException ex)
+    {
+        MessageBox.Show(ex.Message);
+        FileService.SaveActive(null);
+        RefreshDataSet();
+        ToggleProcess("Loading Profile " + SelectedItem.Name + " (ERROR)");
+        DrawerHost.IsTopDrawerOpen = true;
+    }
 }
 public bool IsDialogOpen { get; set; }
 
@@ -289,8 +332,20 @@ private void FinishDialog(bool saving = false)
     if (saving)
     {
         ToggleProcess("Saving Profile " + DialogName,true);
-        //store new data
-        FileService.StoreSaveFile(SavePath,DialogName, _dialogBackupName);
+                //store new data
+                try
+                {
+                    FileService.StoreSaveFile(SavePath, DialogName, _dialogBackupName);
+                }
+                catch (FileNotFoundException ex)
+                {
+                    MessageBox.Show(ex.Message);
+                    ToggleProcess("Saving Profile " + DialogName + " (ERROR)");
+                    DialogName = null;
+                    _dialogBackupName = null;
+                    return;
+                }
+                
         if (ActiveSave != null && ActiveSave.Name.Equals(_dialogBackupName))
         {
             ActiveSave.Name = DialogName;

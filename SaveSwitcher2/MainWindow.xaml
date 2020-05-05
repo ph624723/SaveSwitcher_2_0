@@ -94,6 +94,7 @@
                 </StackPanel>
             </materialDesign:DialogHost.DialogContent>
             <materialDesign:DrawerHost
+                Name="DrawerHost"
                 HorizontalAlignment="Stretch"
   VerticalAlignment="Stretch"
                 IsTopDrawerOpen="False">
