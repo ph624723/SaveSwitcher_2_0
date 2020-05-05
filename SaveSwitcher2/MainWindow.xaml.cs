@@ -213,12 +213,17 @@ private void EditButton_OnClick(object sender, RoutedEventArgs e)
     IsDialogOpen = true;
 }
 
-private void DeleteButton_OnClick(object sender, RoutedEventArgs e)
+private async void DeleteButton_OnClick(object sender, RoutedEventArgs e)
 {
-    ToggleProcess("Deleting profile " + SelectedItem.Name, true);
-    FileService.DeleteSaveFile(SelectedItem.Name);
-    RefreshDataSet();
-    ToggleProcess();
+    string yesNoString = (string)await MaterialDesignThemes.Wpf.DialogHost.Show(new MessageContainer("Do you really want to delete profile '"+SelectedItem.Name+"' permanently?"), "YesNoDialog");
+    if (Boolean.Parse(yesNoString))
+    {
+        ToggleProcess("Deleting profile " + SelectedItem.Name, true);
+        FileService.DeleteSaveFile(SelectedItem.Name);
+        RefreshDataSet();
+            
+        ToggleProcess();
+    }
 }
 
 private void AddButton_OnClick(object sender, RoutedEventArgs e)

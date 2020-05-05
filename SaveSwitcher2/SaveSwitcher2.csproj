@@ -99,6 +99,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="ExtensionMethods.cs" />
+    <Compile Include="MessageContainer.cs" />
     <Compile Include="StoredSave.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

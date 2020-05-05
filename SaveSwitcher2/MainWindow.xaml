@@ -17,8 +17,50 @@
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}">
     <Grid>
-
         <materialDesign:DialogHost
+            Name="YesNoDialog"
+            Identifier="YesNoDialog"
+            CloseOnClickAway="False"
+            CloseOnClickAwayParameter="False">
+            <materialDesign:DialogHost.DialogContentTemplate>
+                <DataTemplate DataType="local:MessageContainer">
+                    <StackPanel Orientation=" Vertical"
+                                Margin="10">
+                        <Label Content="{Binding Message}"
+                               Margin="10"></Label>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Button
+                                Grid.Column="0"
+                                Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}"
+                                Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
+                                CommandParameter="False"
+                                Margin="10">
+                                <materialDesign:PackIcon
+                                    Kind="Close"
+                                    Height="24"
+                                    Width="24"/>
+                            </Button>
+                            <Button 
+                                Grid.Column="2"
+                                Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
+                                Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
+                                CommandParameter="True"    
+                                Margin="10">
+                                    <materialDesign:PackIcon
+                                        Kind="Check"
+                                        Height="24"
+                                        Width="24"/>
+                            </Button>
+                        </Grid>
+                    </StackPanel>
+                </DataTemplate>
+            </materialDesign:DialogHost.DialogContentTemplate>
+            <materialDesign:DialogHost
             IsOpen="{Binding IsDialogOpen}"
             CloseOnClickAway="True"
             DialogClosing="DialogHost_OnDialogClosing">
@@ -266,5 +308,6 @@
                 </Grid>
             </materialDesign:DrawerHost>
             </materialDesign:DialogHost>
+        </materialDesign:DialogHost>
     </Grid>
 </Window>
