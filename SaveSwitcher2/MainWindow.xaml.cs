@@ -316,10 +316,22 @@ public bool DialogContentChanged
 
 public bool DialogSaveEnabled { get; set; }
 
-private void DialogSaveButton_OnClick(object sender, RoutedEventArgs e)
-        { 
-    IsDialogOpen = false;
-    FinishDialog(true);
+private async void DialogSaveButton_OnClick(object sender, RoutedEventArgs e)
+{
+    if (StoredSaves.FirstOrDefault(x => x.Name.Equals(DialogName)) != null)
+    {
+        if (Boolean.Parse((string) await MaterialDesignThemes.Wpf.DialogHost.Show(
+            new MessageContainer("Do you want to overwrite profile '" + DialogName + "'?"), "YesNoDialog")))
+        {
+            IsDialogOpen = false;
+            FinishDialog(true);
+        }
+    }
+    else
+    {
+        IsDialogOpen = false;
+        FinishDialog(true);
+    }
 }
 
 private void DialogHost_OnDialogClosing(object sender, DialogClosingEventArgs eventargs)
@@ -376,7 +388,7 @@ private void RefreshDataSet()
 
 private void DialogNameTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
 {
-    DialogSaveEnabled = !DialogNameTextBox.Text.Equals("") && !DialogNameTextBox.Text.Equals(_dialogBackupName) && (StoredSaves.FirstOrDefault(x => x.Name.Equals(DialogNameTextBox.Text)) == null);
+    DialogSaveEnabled = !DialogNameTextBox.Text.Equals("") && !DialogNameTextBox.Text.Equals(_dialogBackupName) && !DialogNameTextBox.Text.Equals(ActiveLabelText);
     //For some reason property is correct in messagebox but not when being assigned.
     //DialogSaveEnabled = !DialogNameTextBox.Text.Equals("") && DialogContentChanged;
     //MessageBox.Show("" + DialogContentChanged);
