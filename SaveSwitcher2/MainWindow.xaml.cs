@@ -18,6 +18,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MaterialDesignThemes.Wpf;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using SaveSwitcher2.Annotations;
 using Path = System.IO.Path;
 
@@ -41,10 +42,7 @@ namespace SaveSwitcher2
 
         public bool ItemSelected
         {
-            get
-            {
-                return SelectedItem != null;
-            }
+            get { return SelectedItem != null; }
         }
 
         public bool InactiveItemSelected
@@ -92,9 +90,9 @@ namespace SaveSwitcher2
 
             string[] paths = FileService.readPath();
 
-            GamePath = paths[0]; 
+            GamePath = paths[0];
             SavePath = paths[1];
-            
+
 
             LaunchEnabled = true;
             AutoSyncChecked = true;
@@ -126,9 +124,10 @@ namespace SaveSwitcher2
                         MessageBox.Show(e.Message);
                         ActiveSave = null;
                     }
-                    
+
                 }
-            }else if (!new DirectoryInfo(SavePath).Exists)
+            }
+            else if (!new DirectoryInfo(SavePath).Exists)
             {
                 DrawerHost.IsTopDrawerOpen = true;
             }
@@ -138,9 +137,9 @@ namespace SaveSwitcher2
 
         #region launchgame
 
-        
 
-       
+
+
         private void Launch_OnClick(object sender, RoutedEventArgs e)
         {
             LaunchEnabled = false;
@@ -173,7 +172,10 @@ namespace SaveSwitcher2
                     {
                         MessageBox.Show(ex.Message);
                     }
-                }else if(Boolean.Parse((string) await MaterialDesignThemes.Wpf.DialogHost.Show(new MessageContainer("Do you want to refresh the backup for profile '" + ActiveLabelText + "'? (overwrite)"), "YesNoDialog")))
+                }
+                else if (Boolean.Parse((string) await MaterialDesignThemes.Wpf.DialogHost.Show(
+                    new MessageContainer("Do you want to refresh the backup for profile '" + ActiveLabelText +
+                                         "'? (overwrite)"), "YesNoDialog")))
                 {
                     ToggleProcess("Synchronizing Backup.", true);
                     try
@@ -188,8 +190,9 @@ namespace SaveSwitcher2
                 else
                 {
                     FileService.SaveActive(null);
-                    
+
                 }
+
                 RefreshDataSet();
                 ToggleProcess();
             }
@@ -202,17 +205,20 @@ namespace SaveSwitcher2
         }
 
         public event EventHandler<EventArgs> LaunchGameEvent;
+
         protected virtual void InvokeLaunchGameEvent(EventArgs e)
         {
             // Event will be null if there are no subscribers
             if (LaunchGameEvent != null)
             {
-                LaunchGameEvent.Invoke(this,e);
+                LaunchGameEvent.Invoke(this, e);
             }
         }
+
         #endregion
 
         #region Fody
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         [NotifyPropertyChangedInvocator]
@@ -220,10 +226,13 @@ namespace SaveSwitcher2
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
         #endregion
 
         #region gamepaths
+
         private bool _pathChanged = false;
+
         private void GamePathTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
         {
             _pathChanged = true;
@@ -238,112 +247,114 @@ namespace SaveSwitcher2
         {
             if (_pathChanged)
             {
-                FileService.SavePath(GamePathTextBox.Text,SavePathTextBox.Text);
+                FileService.SavePath(GamePathTextBox.Text, SavePathTextBox.Text);
             }
+
             _pathChanged = false;
         }
-#endregion
+
+        #endregion
 
 
-private void EditButton_OnClick(object sender, RoutedEventArgs e)
-{
-    DialogName = SelectedItem.Name.ToString();
-    _dialogBackupName = SelectedItem.Name.ToString();
-    DialogSaveEnabled = false;
-    DialogLabelText = "Edit Profile: " + _dialogBackupName;
-    IsDialogOpen = true;
-}
-
-private async void DeleteButton_OnClick(object sender, RoutedEventArgs e)
-{
-    string yesNoString = (string)await MaterialDesignThemes.Wpf.DialogHost.Show(new MessageContainer("Do you really want to delete profile '"+SelectedItem.Name+"' permanently?"), "YesNoDialog");
-    if (Boolean.Parse(yesNoString))
-    {
-        ToggleProcess("Deleting profile " + SelectedItem.Name, true);
-        FileService.DeleteSaveFile(SelectedItem.Name);
-        RefreshDataSet();
-            
-        ToggleProcess();
-    }
-}
-
-private void AddButton_OnClick(object sender, RoutedEventArgs e)
-{
-    DialogName = "";
-    _dialogBackupName = null;
-    DialogSaveEnabled = false;
-    DialogLabelText = "New Profile";
+        private void EditButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            DialogName = SelectedItem.Name.ToString();
+            _dialogBackupName = SelectedItem.Name.ToString();
+            DialogSaveEnabled = false;
+            DialogLabelText = "Edit Profile: " + _dialogBackupName;
             IsDialogOpen = true;
         }
 
-private void StoredSavesDataGrid_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
-{
-    
-}
-
-private void LoadButton_OnClick(object sender, RoutedEventArgs e)
-{
-    ToggleProcess("Loading Profile "+SelectedItem.Name, true);
-    try
-    {
-        FileService.LoadSaveFile(SavePath, SelectedItem.Name);
-        FileService.SaveActive(SelectedItem);
-        RefreshDataSet();
-        ToggleProcess();
-    }
-    catch (FileNotFoundException ex)
-    {
-        MessageBox.Show(ex.Message);
-        FileService.SaveActive(null);
-        RefreshDataSet();
-        ToggleProcess("Loading Profile " + SelectedItem.Name + " (ERROR)");
-        DrawerHost.IsTopDrawerOpen = true;
-    }
-}
-public bool IsDialogOpen { get; set; }
-
-public string DialogName { get; set; }
-
-private string _dialogBackupName;
-
-public bool DialogContentChanged
-{
-    get
-    {
-        return _dialogBackupName != null ? !_dialogBackupName.Equals(DialogName) : true;
-    }
-}
-
-public bool DialogSaveEnabled { get; set; }
-
-private async void DialogSaveButton_OnClick(object sender, RoutedEventArgs e)
-{
-    if (StoredSaves.FirstOrDefault(x => x.Name.Equals(DialogName)) != null)
-    {
-        if (Boolean.Parse((string) await MaterialDesignThemes.Wpf.DialogHost.Show(
-            new MessageContainer("Do you want to overwrite profile '" + DialogName + "'?"), "YesNoDialog")))
+        private async void DeleteButton_OnClick(object sender, RoutedEventArgs e)
         {
-            IsDialogOpen = false;
-            FinishDialog(true);
+            string yesNoString = (string) await MaterialDesignThemes.Wpf.DialogHost.Show(
+                new MessageContainer("Do you really want to delete profile '" + SelectedItem.Name + "' permanently?"),
+                "YesNoDialog");
+            if (Boolean.Parse(yesNoString))
+            {
+                ToggleProcess("Deleting profile " + SelectedItem.Name, true);
+                FileService.DeleteSaveFile(SelectedItem.Name);
+                RefreshDataSet();
+
+                ToggleProcess();
+            }
         }
-    }
-    else
-    {
-        IsDialogOpen = false;
-        FinishDialog(true);
-    }
-}
 
-private void DialogHost_OnDialogClosing(object sender, DialogClosingEventArgs eventargs)
-{
-FinishDialog();
-}
+        private void AddButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            DialogName = "";
+            _dialogBackupName = null;
+            DialogSaveEnabled = false;
+            DialogLabelText = "New Profile";
+            IsDialogOpen = true;
+        }
 
-private void FinishDialog(bool saving = false)
-{
-    if (saving)
-    {
-        ToggleProcess("Saving Profile " + DialogName,true);
+        private void StoredSavesDataGrid_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
+
+        private void LoadButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            ToggleProcess("Loading Profile " + SelectedItem.Name, true);
+            try
+            {
+                FileService.LoadSaveFile(SavePath, SelectedItem.Name);
+                FileService.SaveActive(SelectedItem);
+                RefreshDataSet();
+                ToggleProcess();
+            }
+            catch (FileNotFoundException ex)
+            {
+                MessageBox.Show(ex.Message);
+                FileService.SaveActive(null);
+                RefreshDataSet();
+                ToggleProcess("Loading Profile " + SelectedItem.Name + " (ERROR)");
+                DrawerHost.IsTopDrawerOpen = true;
+            }
+        }
+
+        public bool IsDialogOpen { get; set; }
+
+        public string DialogName { get; set; }
+
+        private string _dialogBackupName;
+
+        public bool DialogContentChanged
+        {
+            get { return _dialogBackupName != null ? !_dialogBackupName.Equals(DialogName) : true; }
+        }
+
+        public bool DialogSaveEnabled { get; set; }
+
+        private async void DialogSaveButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (StoredSaves.FirstOrDefault(x => x.Name.Equals(DialogName)) != null)
+            {
+                if (Boolean.Parse((string) await MaterialDesignThemes.Wpf.DialogHost.Show(
+                    new MessageContainer("Do you want to overwrite profile '" + DialogName + "'?"), "YesNoDialog")))
+                {
+                    IsDialogOpen = false;
+                    FinishDialog(true);
+                }
+            }
+            else
+            {
+                IsDialogOpen = false;
+                FinishDialog(true);
+            }
+        }
+
+        private void DialogHost_OnDialogClosing(object sender, DialogClosingEventArgs eventargs)
+        {
+            FinishDialog();
+        }
+
+        private void FinishDialog(bool saving = false)
+        {
+            if (saving)
+            {
+                ToggleProcess("Saving Profile " + DialogName, true);
                 //store new data
                 try
                 {
@@ -357,52 +368,78 @@ private void FinishDialog(bool saving = false)
                     _dialogBackupName = null;
                     return;
                 }
-                
-        if (ActiveSave != null && ActiveSave.Name.Equals(_dialogBackupName))
-        {
-            ActiveSave.Name = DialogName;
-            FileService.SaveActive(ActiveSave);
-        }else if (_dialogBackupName == null)
-        {
-            //addbutton
-            FileService.SaveActive(new StoredSave(DialogName, DateTime.Now));
+
+                if (ActiveSave != null && ActiveSave.Name.Equals(_dialogBackupName))
+                {
+                    ActiveSave.Name = DialogName;
+                    FileService.SaveActive(ActiveSave);
+                }
+                else if (_dialogBackupName == null)
+                {
+                    //addbutton
+                    FileService.SaveActive(new StoredSave(DialogName, DateTime.Now));
+                }
+
+                RefreshDataSet();
+                ToggleProcess();
+            }
+
+            DialogName = null;
+            _dialogBackupName = null;
         }
 
-        RefreshDataSet();
-        ToggleProcess();
-    }
-    
-    DialogName = null;
-    _dialogBackupName = null;
-}
-
-private void RefreshDataSet()
-{
-    //refresh dataset
-    StoredSaves = FileService.LoadStoredSaves();
-    //refresh activesave variable 
-    ActiveSave = null;
-    StoredSave storedActive = FileService.readActive();
-    if (storedActive != null)ActiveSave = StoredSaves.FirstOrDefault(x => x.Name.Equals(storedActive.Name));
+        private void RefreshDataSet()
+        {
+            //refresh dataset
+            StoredSaves = FileService.LoadStoredSaves();
+            //refresh activesave variable 
+            ActiveSave = null;
+            StoredSave storedActive = FileService.readActive();
+            if (storedActive != null) ActiveSave = StoredSaves.FirstOrDefault(x => x.Name.Equals(storedActive.Name));
         }
 
-private void DialogNameTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
-{
-    DialogSaveEnabled = !DialogNameTextBox.Text.Equals("") && !DialogNameTextBox.Text.Equals(_dialogBackupName) && !DialogNameTextBox.Text.Equals(ActiveLabelText);
-    //For some reason property is correct in messagebox but not when being assigned.
-    //DialogSaveEnabled = !DialogNameTextBox.Text.Equals("") && DialogContentChanged;
-    //MessageBox.Show("" + DialogContentChanged);
-}
+        private void DialogNameTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
+        {
+            DialogSaveEnabled = !DialogNameTextBox.Text.Equals("") &&
+                                !DialogNameTextBox.Text.Equals(_dialogBackupName) &&
+                                !DialogNameTextBox.Text.Equals(ActiveLabelText);
+            //For some reason property is correct in messagebox but not when being assigned.
+            //DialogSaveEnabled = !DialogNameTextBox.Text.Equals("") && DialogContentChanged;
+            //MessageBox.Show("" + DialogContentChanged);
+        }
 
-private void ToggleProcess(string name = null, bool on = false)
-{
-    string finishedHeader = "Finished: ";
-    string newName = name != null ? name : InfoLabelText;
-    ProgressBarVisibility = on ? Visibility.Visible : Visibility.Collapsed;
-    InfoLabelText = (on ? "" : finishedHeader) + newName.Replace(finishedHeader,"");
-    ExtensionMethods.Refresh(ProgressBar);
-    ExtensionMethods.Refresh(InfoLabel);
-    ExtensionMethods.Refresh(ProcessPanel);
-}
+        private void ToggleProcess(string name = null, bool on = false)
+        {
+            string finishedHeader = "Finished: ";
+            string newName = name != null ? name : InfoLabelText;
+            ProgressBarVisibility = on ? Visibility.Visible : Visibility.Collapsed;
+            InfoLabelText = (on ? "" : finishedHeader) + newName.Replace(finishedHeader, "");
+            ExtensionMethods.Refresh(ProgressBar);
+            ExtensionMethods.Refresh(InfoLabel);
+            ExtensionMethods.Refresh(ProcessPanel);
+        }
+        private void SavePathTextBox_OnGotFocus(object sender, RoutedEventArgs e)
+        {
+
+            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
+            dialog.InitialDirectory = SavePath;
+            dialog.IsFolderPicker = true;
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                SavePath = dialog.FileName;
+            }
+        }
+
+        private void GamePathTextBox_OnGotFocus(object sender, RoutedEventArgs e)
+        {
+            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
+            dialog.InitialDirectory = GamePath;
+            dialog.IsFolderPicker = false;
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                GamePath = dialog.FileName;
+            }
+
+        }
     }
 }

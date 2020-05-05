@@ -113,7 +113,8 @@
                             Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                             materialDesign:HintAssist.HelperText=""
                             TextChanged="GamePathTextBox_OnTextChanged"
-                            LostFocus="PathTextBox_OnLostFocus">
+                            LostFocus="PathTextBox_OnLostFocus"
+                            GotFocus="GamePathTextBox_OnGotFocus">
                             <TextBox.Text>
                                 <Binding
                                     Path="GamePath"
@@ -130,7 +131,8 @@
                             materialDesign:HintAssist.HelperText=""
                             Text="{Binding SavePath}"
                             TextChanged="SavePathTextBox_OnTextChanged"
-                            LostFocus="PathTextBox_OnLostFocus">
+                            LostFocus="PathTextBox_OnLostFocus"
+                            GotFocus="SavePathTextBox_OnGotFocus">
                         </TextBox>
                         <Button
                             HorizontalAlignment="Center"
