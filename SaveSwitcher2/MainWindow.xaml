@@ -273,20 +273,28 @@
                             
 
 </StackPanel>
-                        <Button
+                        <StackPanel
+                            Orientation="Horizontal"
                             Grid.Row="1"
                             HorizontalAlignment="Right"
                             VerticalAlignment="Bottom"
-                            Margin="20"
-                            FontSize="20"
-                            Style="{StaticResource MaterialDesignRaisedLightButton}"
-                            Width="200"
-                            Height="50"
-                            ToolTip="Launch Game"
-                            Click="Launch_OnClick"
-                            IsEnabled="{Binding LaunchEnabled}">
-                            _LAUNCH
-                        </Button>
+                            Margin="10">
+                            <CheckBox Content="Autosync backup after closing"
+                                      Margin="10"
+                                      VerticalAlignment="Bottom"
+                                      IsChecked="{Binding AutoSyncChecked}"/>
+                            <Button
+                                Margin="10"
+                                FontSize="20"
+                                Style="{StaticResource MaterialDesignRaisedLightButton}"
+                                Width="200"
+                                Height="50"
+                                ToolTip="Launch Game"
+                                Click="Launch_OnClick"
+                                IsEnabled="{Binding LaunchEnabled}">
+                                _LAUNCH
+                            </Button>
+                            </StackPanel>
                     </Grid>
                     <materialDesign:Badged
                         HorizontalAlignment="Center"

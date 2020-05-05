@@ -79,6 +79,8 @@ namespace SaveSwitcher2
 
         public string DialogLabelText { get; set; }
 
+        public bool AutoSyncChecked { get; set; }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -95,6 +97,7 @@ namespace SaveSwitcher2
             
 
             LaunchEnabled = true;
+            AutoSyncChecked = true;
 
             StoredSave storedActive = FileService.readActive();
             if (storedActive != null)
@@ -133,7 +136,7 @@ namespace SaveSwitcher2
             InvokeLaunchGameEvent(EventArgs.Empty);
         }
 
-        private void OnLaunchGameEvent(object sender, EventArgs e)
+        private async void OnLaunchGameEvent(object sender, EventArgs e)
         {
             var process = new Process
             {
@@ -147,9 +150,15 @@ namespace SaveSwitcher2
             {
                 process.Start();
                 process.WaitForExit();
-                ToggleProcess("Game closed. Synchronizing Backup.");
-                FileService.StoreSaveFile(SavePath, ActiveSave.Name);
-                RefreshDataSet();
+                if (AutoSyncChecked)
+                {
+                    ToggleProcess("Game closed. Synchronizing Backup.", true);
+                    FileService.StoreSaveFile(SavePath, ActiveSave.Name);
+                    RefreshDataSet();
+                }else if(Boolean.Parse((string) await MaterialDesignThemes.Wpf.DialogHost.Show(new MessageContainer("Do you want to refresh the backup for profile '" + ActiveLabelText + "'? (overwrite)"), "YesNoDialog")))
+                {
+
+                }
                 ToggleProcess();
             }
             catch (Exception ex)
