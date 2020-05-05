@@ -295,6 +295,10 @@ private void FinishDialog(bool saving = false)
         {
             ActiveSave.Name = DialogName;
             FileService.SaveActive(ActiveSave);
+        }else if (_dialogBackupName == null)
+        {
+            //addbutton
+            FileService.SaveActive(new StoredSave(DialogName, DateTime.Now));
         }
 
         RefreshDataSet();
