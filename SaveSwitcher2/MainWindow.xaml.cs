@@ -139,7 +139,8 @@ namespace SaveSwitcher2
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = GamePath
+                    FileName = GamePath,
+                    WorkingDirectory = Path.GetDirectoryName(GamePath)
                 }
             };
             try
