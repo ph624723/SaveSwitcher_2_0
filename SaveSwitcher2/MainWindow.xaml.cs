@@ -30,8 +30,18 @@ namespace SaveSwitcher2
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
+        public string SteamPath { get; set; }
         public string GamePath { get; set; }
         public string SavePath { get; set; }
+
+        public Visibility GamePathVisibility
+        {
+            get { return SteamGameSelected ? Visibility.Collapsed : Visibility.Visible; }
+        }
+        public Visibility SteamPathVisibility
+        {
+            get { return SteamGameSelected ? Visibility.Visible : Visibility.Collapsed; }
+        }
 
         public string InfoLabelText { get; set; }
 
@@ -81,10 +91,7 @@ namespace SaveSwitcher2
 
         public bool AutoSyncChecked { get; set; }
 
-        public bool SteamGameSelected
-        {
-            get { return GamePath.Contains("steam://rungameid/"); }
-        }
+        public bool SteamGameSelected { get; set; }
 
         public MainWindow()
         {
@@ -99,7 +106,8 @@ namespace SaveSwitcher2
 
             GamePath = paths[0];
             SavePath = paths[1];
-
+            SteamPath = paths[2];
+            SteamGameSelected = Boolean.Parse(paths[3]);
 
             LaunchEnabled = true;
             AutoSyncChecked = true;
@@ -160,7 +168,7 @@ namespace SaveSwitcher2
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = GamePath,
+                    FileName = SteamGameSelected? "steam://rungameid/" + SteamPath : GamePath,
                     //Arguments = "-applaunch 212680",
                     WorkingDirectory = Path.GetDirectoryName(GamePath)
                 }
@@ -281,6 +289,11 @@ namespace SaveSwitcher2
 
         private bool _pathChanged = false;
 
+        private void SteamPathTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
+        {
+            _pathChanged = true;
+        }
+
         private void GamePathTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
         {
             _pathChanged = true;
@@ -295,10 +308,14 @@ namespace SaveSwitcher2
         {
             if (_pathChanged)
             {
-                FileService.SavePath(GamePathTextBox.Text, SavePathTextBox.Text);
+                FileService.SavePath(GamePathTextBox.Text, SavePathTextBox.Text, SteamPathTextBox.Text, SteamGameSelected);
             }
 
             _pathChanged = false;
+        }
+        private void SteamToggleButton_OnChecked(object sender, RoutedEventArgs e)
+        {
+            FileService.SavePath(GamePathTextBox.Text, SavePathTextBox.Text, SteamPathTextBox.Text, SteamGameSelected);
         }
 
         #endregion
@@ -524,5 +541,6 @@ namespace SaveSwitcher2
             }
 
         }
+
     }
 }

@@ -102,11 +102,52 @@
                     <Grid Margin="10">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="auto"></RowDefinition>
+                                <RowDefinition Height="auto"></RowDefinition>
                             <RowDefinition Height="Auto"></RowDefinition>
                             <RowDefinition Height="Auto"></RowDefinition>
                         </Grid.RowDefinitions>
-                        <TextBox
-                            Grid.Row="0"
+                        <StackPanel Orientation="Horizontal"
+                                    Grid.Row="0">
+                            <ToggleButton
+                                Style="{StaticResource MaterialDesignSwitchLightToggleButton}"
+                                HorizontalAlignment="Left"
+                                Margin="10"
+                                ToolTip="MaterialDesignSwitchLightToggleButton"
+                                IsChecked="{Binding SteamGameSelected}"
+                                Checked="SteamToggleButton_OnChecked"/>
+                            <TextBlock VerticalAlignment="Center"> Launch game through Steam</TextBlock>
+                            </StackPanel>
+                            <Grid       Grid.Row="1"
+                                        Visibility="{Binding SteamPathVisibility}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock
+                                    Grid.Column="0"
+                                    Margin="10 10 10 15"
+                                    VerticalAlignment="Bottom">steam://rungameid/</TextBlock>
+                                <TextBox
+                                    Grid.Column="1"
+                                    x:Name="SteamPathTextBox"
+                                    Margin="10"
+                                    VerticalAlignment="Bottom"
+                                    ToolTip="Enter the game-Id of the Steam-game you want to launch"
+                                    materialDesign:HintAssist.Hint="Game ID"
+                                    Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                    materialDesign:HintAssist.HelperText=""
+                                    TextChanged="SteamPathTextBox_OnTextChanged"
+                                    LostFocus="PathTextBox_OnLostFocus">
+                                    <TextBox.Text>
+                                        <Binding
+                                            Path="SteamPath"
+                                            UpdateSourceTrigger="PropertyChanged">
+                                        </Binding>
+                                    </TextBox.Text>
+                                </TextBox>
+                            </Grid>
+                            <TextBox
+                            Grid.Row="1"
                             x:Name="GamePathTextBox"
                             Margin="10"
                             ToolTip="Enter path to launch the game. (Steam: steam://rungameid/*gameid*)"
@@ -115,7 +156,8 @@
                             materialDesign:HintAssist.HelperText=""
                             TextChanged="GamePathTextBox_OnTextChanged"
                             LostFocus="PathTextBox_OnLostFocus"
-                            GotFocus="GamePathTextBox_OnGotFocus">
+                            GotFocus="GamePathTextBox_OnGotFocus"
+                            Visibility="{Binding GamePathVisibility, Mode=OneWay}">
                             <TextBox.Text>
                                 <Binding
                                     Path="GamePath"
@@ -124,7 +166,7 @@
                             </TextBox.Text>
                         </TextBox>
                         <TextBox
-                            Grid.Row="1"
+                            Grid.Row="2"
                             x:Name="SavePathTextBox"
                             Margin="10"
                             materialDesign:HintAssist.Hint="Savegame directory"
@@ -138,7 +180,7 @@
                         </TextBox>
                         <Button
                             HorizontalAlignment="Center"
-                            Grid.Row="2"
+                            Grid.Row="3"
                             Style="{StaticResource MaterialDesignRaisedLightButton}"
                             Command="{x:Static materialDesign:DrawerHost.CloseDrawerCommand}"
                             CommandParameter="{x:Static Dock.Top}"

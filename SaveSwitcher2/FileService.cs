@@ -35,20 +35,26 @@ namespace SaveSwitcher2
             get { return _fallbackSavesPath; }
         }
 
+        private static string _fallbackSteamPath = "id";
+        public static string FallbackSteamPath
+        {
+            get { return _fallbackSteamPath; }
+        }
+
         public static string[] readPath()
         {
             FileInfo file = new FileInfo(_pathStr);
-            string[] paths = new string[2];
+            string[] paths = new string[4];
 
             if (!file.Exists)
             {
-                SavePath(_fallbackGamePath,_fallbackSavesPath);
+                SavePath(_fallbackGamePath,_fallbackSavesPath, _fallbackSteamPath, false);
             }
 
             StreamReader sr = file.OpenText();
 
             
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < 4; i++)
             {
                 paths[i] = sr.ReadLine();
             }
@@ -56,20 +62,22 @@ namespace SaveSwitcher2
 
             if (paths.Contains(null) || paths.Contains(string.Empty))
             {
-                SavePath(_fallbackGamePath, _fallbackSavesPath);
+                SavePath(_fallbackGamePath, _fallbackSavesPath, _fallbackSteamPath, false);
                 return readPath();
 
             }
             return paths;
         }
 
-        public static void SavePath(string gamePath, string savePath)
+        public static void SavePath(string gamePath, string savePath, string steampath, bool steamToggle)
         {
             FileInfo file = new FileInfo(_pathStr);
             using (StreamWriter outputFile = file.CreateText())
             { 
                 outputFile.WriteLine(gamePath);
                 outputFile.WriteLine(savePath);
+                outputFile.WriteLine(steampath);
+                outputFile.WriteLine(steamToggle.ToString());
             }
         }
 
