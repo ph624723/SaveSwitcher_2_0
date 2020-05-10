@@ -109,6 +109,7 @@
                             Grid.Row="0"
                             x:Name="GamePathTextBox"
                             Margin="10"
+                            ToolTip="Enter path to launch the game. (Steam: steam://rungameid/*gameid*)"
                             materialDesign:HintAssist.Hint="Game directory"
                             Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                             materialDesign:HintAssist.HelperText=""
@@ -130,6 +131,7 @@
                             Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                             materialDesign:HintAssist.HelperText=""
                             Text="{Binding SavePath}"
+                            ToolTip="Enter the directory which shall be backed up"
                             TextChanged="SavePathTextBox_OnTextChanged"
                             LostFocus="PathTextBox_OnLostFocus"
                             GotFocus="SavePathTextBox_OnGotFocus">
