@@ -185,14 +185,26 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
                             <Button
                                 Grid.Column="1"
+                                Name="RefreshButton"
+                                Margin="10"                                
+                                Style="{StaticResource MaterialDesignRaisedLightButton}"
+                                Width="100"
+                                ToolTip="Update the backup data for selected entry (with active save)"
+                                Click="RefreshButton_OnClick"
+                                IsEnabled="{Binding ItemSelected,Mode=OneWay}">
+                                Update
+                            </Button>
+                                <Button
+                                Grid.Column="2"
                                 Name="LoadButton"
                                 Margin="10"                                
                                 Style="{StaticResource MaterialDesignRaisedLightButton}"
                                 Width="100"
-                                ToolTip="Edit selected entry"
+                                ToolTip="Load the selected profile"
                                 Click="LoadButton_OnClick"
                                 IsEnabled="{Binding InactiveItemSelected,Mode=OneWay}">
                                 Load
@@ -206,7 +218,7 @@
                                 <Button
                                     Name="DeleteButton"
                                     Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}"
-                                    ToolTip="Edit selected entry"
+                                    ToolTip="Delete selected profile"
                                     Click="DeleteButton_OnClick"
                                     IsEnabled="{Binding InactiveItemSelected,Mode=OneWay}"
                                     Margin="10">
@@ -309,7 +321,7 @@
                             Command="{x:Static materialDesign:DrawerHost.OpenDrawerCommand}"
                             CommandParameter="{x:Static Dock.Top}"
                             Style="{StaticResource MaterialDesignRaisedLightButton}"
-                            ToolTip="Change of game and saves">
+                            ToolTip="Change paths of game and saves">
                             Change gamepaths
                         </Button>
                     </materialDesign:Badged>

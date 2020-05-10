@@ -295,6 +295,30 @@ namespace SaveSwitcher2
 
         }
 
+        private async void RefreshButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (!Boolean.Parse((string) await MaterialDesignThemes.Wpf.DialogHost.Show(
+                new MessageContainer("Do you really want to overwrite the data stored for profile '" + SelectedItem.Name + "'?"), "YesNoDialog"))) return;
+            
+            ToggleProcess("Updating Profile " + SelectedItem.Name, true);
+            //store new data
+            try
+            {
+                FileService.StoreSaveFile(SavePath, SelectedItem.Name, null);
+            }
+            catch (FileNotFoundException ex)
+            {
+                MessageBox.Show(ex.Message);
+                ToggleProcess("Saving Profile " + SelectedItem.Name + " (ERROR)");
+                return;
+            }
+
+            FileService.SaveActive(new StoredSave(SelectedItem.Name, DateTime.Now));
+
+            RefreshDataSet();
+            ToggleProcess();
+        }
+
         private void LoadButton_OnClick(object sender, RoutedEventArgs e)
         {
             ToggleProcess("Loading Profile " + SelectedItem.Name, true);
