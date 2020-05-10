@@ -161,6 +161,7 @@ namespace SaveSwitcher2
             }
             ClearDirectory(new DirectoryInfo(savePath));
             DirectoryCopy(sourceDir.FullName,savePath);
+            //Necessary because game files are going to be new and will seem to have changed otherwise
             Directory.SetLastWriteTime(sourceDir.FullName,DateTime.Now);
         }
 
