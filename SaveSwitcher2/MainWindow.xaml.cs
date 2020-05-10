@@ -18,6 +18,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MaterialDesignThemes.Wpf;
+using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using SaveSwitcher2.Annotations;
 using Path = System.IO.Path;
@@ -78,15 +79,11 @@ namespace SaveSwitcher2
 
         public string DialogLabelText { get; set; }
 
-        private bool _autoSyncChecked;
-        public bool AutoSyncChecked {
-            get { return _autoSyncChecked && CheckBoxEnabled; }
-            set { _autoSyncChecked = value; }
-        }
+        public bool AutoSyncChecked { get; set; }
 
-        public bool CheckBoxEnabled
+        public bool SteamGameSelected
         {
-            get { return !GamePath.Contains("steam://rungameid/"); }
+            get { return GamePath.Contains("steam://rungameid/"); }
         }
 
         public MainWindow()
@@ -171,12 +168,27 @@ namespace SaveSwitcher2
             try
             {
                 process.Start();
-                if (CheckBoxEnabled)
+                if (!SteamGameSelected)
                 {
                     process.WaitForExit();
+                }
+                else
+                {
+                    string compareId = "";
+                    string runId = null;
+                    while ((runId = CheckSteamRunning()) != null && !runId.Equals(compareId))
+                    {
+                        if (!runId.Equals("0"))
+                        {
+                            compareId = "0";
+                        }
 
+                        Thread.Sleep(1000);
+                    }
+                }
 
-                    if (AutoSyncChecked)
+                Unsynced = false;
+                if (AutoSyncChecked)
                     {
                         ToggleProcess("Game closed. Synchronizing Backup.", true);
                         try
@@ -202,29 +214,42 @@ namespace SaveSwitcher2
                             MessageBox.Show(ex.Message);
                         }
                     }
-                    else
-                    {
-                        FileService.SaveActive(null);
-
-                    }
-
-                    Unsynced = false;
-                    RefreshDataSet();
-                }
                 else
                 {
+                    //FileService.SaveActive(null);
                     Unsynced = true;
                 }
-                
-                
-                ToggleProcess();
             }
             catch (Exception ex)
             {
                 ToggleProcess("ERROR, game .exe could not be found");
             }
 
+            RefreshDataSet();
+            ToggleProcess();
             LaunchEnabled = true;
+        }
+
+        private string CheckSteamRunning()
+        {
+            try
+            {
+                RegistryKey steamKey = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Valve\Steam");
+                //if it does exist, retrieve the stored values  
+                if (steamKey != null)
+                {
+                    if (steamKey.GetValue("RunningAppID") != null)
+                    {
+                        return steamKey.GetValue("RunningAppID").ToString();
+                    }
+                }
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show(exception.Message);
+            }
+
+            return null;
         }
 
         public event EventHandler<EventArgs> LaunchGameEvent;
