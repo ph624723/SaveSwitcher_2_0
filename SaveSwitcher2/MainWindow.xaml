@@ -299,7 +299,8 @@
                             <CheckBox Content="Autosync backup after closing"
                                       Margin="10"
                                       VerticalAlignment="Bottom"
-                                      IsChecked="{Binding AutoSyncChecked}"/>
+                                      IsChecked="{Binding AutoSyncChecked}"
+                                      IsEnabled="{Binding CheckBoxEnabled, Mode=OneWay}"/>
                             <Button
                                 Margin="10"
                                 FontSize="20"

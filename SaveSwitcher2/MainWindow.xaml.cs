@@ -69,15 +69,25 @@ namespace SaveSwitcher2
                 //ActiveLabelText =  ((value != null) ? value.Name : "");
             }
         }
+        public bool Unsynced { get; set; }
 
         public string ActiveLabelText
         {
-            get { return ActiveSave != null ? ActiveSave.Name : ""; }
+            get { return ActiveSave != null ? ActiveSave.Name + (Unsynced? " (Backup unsynced)": "") : ""; }
         }
 
         public string DialogLabelText { get; set; }
 
-        public bool AutoSyncChecked { get; set; }
+        private bool _autoSyncChecked;
+        public bool AutoSyncChecked {
+            get { return _autoSyncChecked && CheckBoxEnabled; }
+            set { _autoSyncChecked = value; }
+        }
+
+        public bool CheckBoxEnabled
+        {
+            get { return !GamePath.Contains("steam://rungameid/"); }
+        }
 
         public MainWindow()
         {
@@ -161,40 +171,52 @@ namespace SaveSwitcher2
             try
             {
                 process.Start();
-                process.WaitForExit();
-                if (AutoSyncChecked)
+                if (CheckBoxEnabled)
                 {
-                    ToggleProcess("Game closed. Synchronizing Backup.", true);
-                    try
+                    process.WaitForExit();
+
+
+                    if (AutoSyncChecked)
                     {
-                        FileService.StoreSaveFile(SavePath, ActiveSave.Name);
+                        ToggleProcess("Game closed. Synchronizing Backup.", true);
+                        try
+                        {
+                            FileService.StoreSaveFile(SavePath, ActiveSave.Name);
+                        }
+                        catch (FileNotFoundException ex)
+                        {
+                            MessageBox.Show(ex.Message);
+                        }
                     }
-                    catch (FileNotFoundException ex)
+                    else if (Boolean.Parse((string) await MaterialDesignThemes.Wpf.DialogHost.Show(
+                        new MessageContainer("Do you want to refresh the backup for profile '" + ActiveLabelText +
+                                             "'? (overwrite)"), "YesNoDialog")))
                     {
-                        MessageBox.Show(ex.Message);
+                        ToggleProcess("Synchronizing Backup.", true);
+                        try
+                        {
+                            FileService.StoreSaveFile(SavePath, ActiveSave.Name);
+                        }
+                        catch (FileNotFoundException ex)
+                        {
+                            MessageBox.Show(ex.Message);
+                        }
                     }
-                }
-                else if (Boolean.Parse((string) await MaterialDesignThemes.Wpf.DialogHost.Show(
-                    new MessageContainer("Do you want to refresh the backup for profile '" + ActiveLabelText +
-                                         "'? (overwrite)"), "YesNoDialog")))
-                {
-                    ToggleProcess("Synchronizing Backup.", true);
-                    try
+                    else
                     {
-                        FileService.StoreSaveFile(SavePath, ActiveSave.Name);
+                        FileService.SaveActive(null);
+
                     }
-                    catch (FileNotFoundException ex)
-                    {
-                        MessageBox.Show(ex.Message);
-                    }
+
+                    Unsynced = false;
+                    RefreshDataSet();
                 }
                 else
                 {
-                    FileService.SaveActive(null);
-
+                    Unsynced = true;
                 }
-
-                RefreshDataSet();
+                
+                
                 ToggleProcess();
             }
             catch (Exception ex)
@@ -309,18 +331,26 @@ namespace SaveSwitcher2
             catch (FileNotFoundException ex)
             {
                 MessageBox.Show(ex.Message);
-                ToggleProcess("Saving Profile " + SelectedItem.Name + " (ERROR)");
+                ToggleProcess("Updating Profile " + SelectedItem.Name + " (ERROR)");
                 return;
             }
 
             FileService.SaveActive(new StoredSave(SelectedItem.Name, DateTime.Now));
-
+            Unsynced = false;
             RefreshDataSet();
             ToggleProcess();
         }
 
-        private void LoadButton_OnClick(object sender, RoutedEventArgs e)
+        private async void LoadButton_OnClick(object sender, RoutedEventArgs e)
         {
+            if (Unsynced)
+            {
+                if (!Boolean.Parse((string) await MaterialDesignThemes.Wpf.DialogHost.Show(
+                    new MessageContainer("Active profile seems to be unsynced. Do you really want to load profile '" + SelectedItem.Name + "'? \nUnsynced changes will be lost."), "YesNoDialog")))
+                {
+                    return;
+                }
+            }
             ToggleProcess("Loading Profile " + SelectedItem.Name, true);
             try
             {
@@ -337,6 +367,8 @@ namespace SaveSwitcher2
                 ToggleProcess("Loading Profile " + SelectedItem.Name + " (ERROR)");
                 DrawerHost.IsTopDrawerOpen = true;
             }
+
+            Unsynced = false;
         }
 
         public bool IsDialogOpen { get; set; }
@@ -403,6 +435,7 @@ namespace SaveSwitcher2
                 {
                     //addbutton
                     FileService.SaveActive(new StoredSave(DialogName, DateTime.Now));
+                    Unsynced = false;
                 }
 
                 RefreshDataSet();
