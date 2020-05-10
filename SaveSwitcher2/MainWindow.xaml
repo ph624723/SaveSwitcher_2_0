@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:SaveSwitcher2"
         mc:Ignorable="d"
         Title="SaveSwitcher 2.0 - Ultimate" Height="450" Width="800"
-        MinWidth="500"
+        MinWidth="750"
         MinHeight="350"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
