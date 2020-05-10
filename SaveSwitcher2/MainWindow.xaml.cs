@@ -154,6 +154,7 @@ namespace SaveSwitcher2
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = GamePath,
+                    //Arguments = "-applaunch 212680",
                     WorkingDirectory = Path.GetDirectoryName(GamePath)
                 }
             };
