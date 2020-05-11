@@ -35,7 +35,7 @@ namespace SaveSwitcher2
             get { return _fallbackSavesPath; }
         }
 
-        private static string _fallbackSteamPath = "id";
+        private static string _fallbackSteamPath = "292030";
         public static string FallbackSteamPath
         {
             get { return _fallbackSteamPath; }

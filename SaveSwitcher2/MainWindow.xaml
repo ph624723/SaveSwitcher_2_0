@@ -96,7 +96,7 @@
             <materialDesign:DrawerHost
                 Name="DrawerHost"
                 HorizontalAlignment="Stretch"
-  VerticalAlignment="Stretch"
+                VerticalAlignment="Stretch"
                 IsTopDrawerOpen="False">
                 <materialDesign:DrawerHost.TopDrawerContent>
                     <Grid Margin="10">
@@ -114,7 +114,7 @@
                                 Margin="10"
                                 ToolTip="MaterialDesignSwitchLightToggleButton"
                                 IsChecked="{Binding SteamGameSelected}"
-                                Checked="SteamToggleButton_OnChecked"/>
+                                Click="SteamToggleButton_OnClick"/>
                             <TextBlock VerticalAlignment="Center"> Launch game through Steam</TextBlock>
                             </StackPanel>
                             <Grid       Grid.Row="1"

@@ -313,7 +313,7 @@ namespace SaveSwitcher2
 
             _pathChanged = false;
         }
-        private void SteamToggleButton_OnChecked(object sender, RoutedEventArgs e)
+        private void SteamToggleButton_OnClick(object sender, RoutedEventArgs e)
         {
             FileService.SavePath(GamePathTextBox.Text, SavePathTextBox.Text, SteamPathTextBox.Text, SteamGameSelected);
         }
@@ -541,6 +541,5 @@ namespace SaveSwitcher2
             }
 
         }
-
     }
 }
