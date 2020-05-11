@@ -54,10 +54,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>B7541EA0E8FFE888A07D2C7119FCF18A82DA38FA</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>4914A91FF26AC6C3DC189E051BFD3270FA688462</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>SaveSwitcher2_1_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>SaveSwitcher2_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
@@ -147,8 +147,6 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <None Include="SaveSwitcher2_1_TemporaryKey.pfx" />
-    <None Include="SaveSwitcher2_2_TemporaryKey.pfx" />
     <None Include="SaveSwitcher2_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
