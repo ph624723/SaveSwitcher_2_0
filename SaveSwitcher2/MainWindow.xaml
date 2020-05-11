@@ -9,6 +9,7 @@
         MinWidth="750"
         MinHeight="350"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:model="clr-namespace:SaveSwitcher2.Model"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
         TextElement.FontSize="13"
@@ -23,7 +24,7 @@
             CloseOnClickAway="False"
             CloseOnClickAwayParameter="False">
             <materialDesign:DialogHost.DialogContentTemplate>
-                <DataTemplate DataType="local:MessageContainer">
+                <DataTemplate DataType="model:MessageContainer">
                     <StackPanel Orientation=" Vertical"
                                 Margin="10">
                         <Label Content="{Binding Message}"

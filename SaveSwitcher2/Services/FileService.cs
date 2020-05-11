@@ -1,14 +1,10 @@
 ﻿using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
+using SaveSwitcher2.Model;
 
-namespace SaveSwitcher2
+namespace SaveSwitcher2.Services
 {
     static class FileService
     {
