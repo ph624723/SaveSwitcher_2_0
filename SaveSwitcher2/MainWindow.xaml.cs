@@ -43,6 +43,8 @@ namespace SaveSwitcher2
             get { return SteamGameSelected ? Visibility.Visible : Visibility.Collapsed; }
         }
 
+        //public string SteamRecognizedGame { get; set; }
+
         public string InfoLabelText { get; set; }
 
         public Visibility ProgressBarVisibility { get; set; }
@@ -184,7 +186,7 @@ namespace SaveSwitcher2
                 {
                     string compareId = "";
                     string runId = null;
-                    while ((runId = CheckSteamRunning()) != null && !runId.Equals(compareId))
+                    while ((runId = RegistryService.CheckSteamRunning()) != null && !runId.Equals(compareId))
                     {
                         if (!runId.Equals("0"))
                         {
@@ -238,28 +240,6 @@ namespace SaveSwitcher2
             LaunchEnabled = true;
         }
 
-        private string CheckSteamRunning()
-        {
-            try
-            {
-                RegistryKey steamKey = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Valve\Steam");
-                //if it does exist, retrieve the stored values  
-                if (steamKey != null)
-                {
-                    if (steamKey.GetValue("RunningAppID") != null)
-                    {
-                        return steamKey.GetValue("RunningAppID").ToString();
-                    }
-                }
-            }
-            catch (Exception exception)
-            {
-                MessageBox.Show(exception.Message);
-            }
-
-            return null;
-        }
-
         public event EventHandler<EventArgs> LaunchGameEvent;
 
         protected virtual void InvokeLaunchGameEvent(EventArgs e)
@@ -310,7 +290,11 @@ namespace SaveSwitcher2
             {
                 FileService.SavePath(GamePathTextBox.Text, SavePathTextBox.Text, SteamPathTextBox.Text, SteamGameSelected);
             }
-
+            /*
+            if (sender.Equals(SteamPathTextBox))
+            {
+                SteamRecognizedGame = RegistryService.CheckGameName(SteamPathTextBox.Text);
+            }*/
             _pathChanged = false;
         }
         private void SteamToggleButton_OnClick(object sender, RoutedEventArgs e)
