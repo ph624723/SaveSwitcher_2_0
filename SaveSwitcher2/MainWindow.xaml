@@ -65,7 +65,8 @@
             CloseOnClickAway="True"
             DialogClosing="DialogHost_OnDialogClosing">
             <materialDesign:DialogHost.DialogContent>
-                <StackPanel Orientation="Vertical"
+                <StackPanel 
+                    Orientation="Vertical"
                             Margin="10"
                             MaxWidth="500">
                     <Label Name="DialogLabel"
@@ -117,36 +118,24 @@
                                 Click="SteamToggleButton_OnClick"/>
                             <TextBlock VerticalAlignment="Center"> Launch game through Steam</TextBlock>
                             </StackPanel>
-                            <Grid       Grid.Row="1"
-                                        Visibility="{Binding SteamPathVisibility}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock
-                                    Grid.Column="0"
-                                    Margin="10 10 10 15"
-                                    VerticalAlignment="Bottom">steam://rungameid/</TextBlock>
-                                <TextBox
-                                    Grid.Column="1"
-                                    x:Name="SteamPathTextBox"
-                                    Margin="10"
+                        <ComboBox
+                            Visibility="{Binding SteamPathVisibility, Mode=OneWay}"
+                                    Name="SteamPathComboBox"
+                                    Grid.Row="1"
                                     VerticalAlignment="Bottom"
-                                    ToolTip="Enter the game-Id of the Steam-game you want to launch"
-                                    materialDesign:HintAssist.Hint="Game ID"
-                                    Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                                    materialDesign:HintAssist.HelperText=""
-                                    TextChanged="SteamPathTextBox_OnTextChanged"
-                                    LostFocus="PathTextBox_OnLostFocus">
-                                    <TextBox.Text>
-                                        <Binding
-                                            Path="SteamPath"
-                                            UpdateSourceTrigger="PropertyChanged">
-                                        </Binding>
-                                    </TextBox.Text>
-                                </TextBox>
-                            </Grid>
-                            <TextBox
+                                    Margin="10"
+                                    Style="{StaticResource MaterialDesignFloatingHintComboBox}"
+                                    materialDesign:HintAssist.Hint="Game"
+                                    ToolTip="Select Steam game to launch"
+                                    IsEditable="False"
+                                    ItemsSource="{Binding SteamAvailableGames}"
+                                    DisplayMemberPath="Name"
+                                    SelectedValuePath="SteamGameId"
+                                    SelectedValue="{Binding SteamPath}"
+                                    LostFocus="PathTextBox_OnLostFocus"
+                                    SelectionChanged="SteamPathComboBox_OnSelectionChanged">
+                                </ComboBox>
+                        <TextBox
                             Grid.Row="1"
                             x:Name="GamePathTextBox"
                             Margin="10"

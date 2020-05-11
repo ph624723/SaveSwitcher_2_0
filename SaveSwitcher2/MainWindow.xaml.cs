@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -43,7 +44,7 @@ namespace SaveSwitcher2
             get { return SteamGameSelected ? Visibility.Visible : Visibility.Collapsed; }
         }
 
-        //public string SteamRecognizedGame { get; set; }
+        public ObservableCollection<SteamGame> SteamAvailableGames { get; set; }
 
         public string InfoLabelText { get; set; }
 
@@ -103,13 +104,17 @@ namespace SaveSwitcher2
             ToggleProcess("Initializing", true);
 
             StoredSaves = FileService.LoadStoredSaves();
+            SteamAvailableGames = RegistryService.GetAvailableGames();
 
             string[] paths = FileService.readPath();
 
             GamePath = paths[0];
             SavePath = paths[1];
-            SteamPath = paths[2];
-            SteamGameSelected = Boolean.Parse(paths[3]);
+            SteamGameSelected = Boolean.Parse(paths[2]);
+            if (SteamAvailableGames.FirstOrDefault(x => x.SteamGameId.Equals(paths[3])) != null)
+            {
+                SteamPath = paths[3];
+            }
 
             LaunchEnabled = true;
             AutoSyncChecked = true;
@@ -269,7 +274,7 @@ namespace SaveSwitcher2
 
         private bool _pathChanged = false;
 
-        private void SteamPathTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
+        private void SteamPathComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             _pathChanged = true;
         }
@@ -288,18 +293,13 @@ namespace SaveSwitcher2
         {
             if (_pathChanged)
             {
-                FileService.SavePath(GamePathTextBox.Text, SavePathTextBox.Text, SteamPathTextBox.Text, SteamGameSelected);
+                FileService.SavePath(GamePathTextBox.Text, SavePathTextBox.Text, SteamPath, SteamGameSelected);
             }
-            /*
-            if (sender.Equals(SteamPathTextBox))
-            {
-                SteamRecognizedGame = RegistryService.CheckGameName(SteamPathTextBox.Text);
-            }*/
             _pathChanged = false;
         }
         private void SteamToggleButton_OnClick(object sender, RoutedEventArgs e)
         {
-            FileService.SavePath(GamePathTextBox.Text, SavePathTextBox.Text, SteamPathTextBox.Text, SteamGameSelected);
+            FileService.SavePath(GamePathTextBox.Text, SavePathTextBox.Text, SteamPath, SteamGameSelected);
         }
 
         #endregion
@@ -525,5 +525,7 @@ namespace SaveSwitcher2
             }
 
         }
+
+
     }
 }

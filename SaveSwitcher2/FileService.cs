@@ -60,7 +60,7 @@ namespace SaveSwitcher2
             }
             sr.Close();
 
-            if (paths.Contains(null) || paths.Contains(string.Empty))
+            if (paths.Contains(null) || paths.Take(3).Contains(string.Empty))
             {
                 SavePath(_fallbackGamePath, _fallbackSavesPath, _fallbackSteamPath, false);
                 return readPath();
@@ -76,8 +76,8 @@ namespace SaveSwitcher2
             { 
                 outputFile.WriteLine(gamePath);
                 outputFile.WriteLine(savePath);
-                outputFile.WriteLine(steampath);
                 outputFile.WriteLine(steamToggle.ToString());
+                outputFile.WriteLine(steampath != null ? steampath : "");
             }
         }
 
@@ -127,7 +127,6 @@ namespace SaveSwitcher2
             DirectoryInfo targetDir = new DirectoryInfo(targetPath);
 
             string sourcePath;
-            DirectoryInfo sourceDir;
             if (oldName != null)
             {
                 sourcePath = Path.Combine(_storePath, oldName);

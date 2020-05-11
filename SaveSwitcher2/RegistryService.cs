@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -37,22 +38,35 @@ namespace SaveSwitcher2
             return null;
         }
 
-        public static string CheckGameName(string gameId)
+        public static ObservableCollection<SteamGame> GetAvailableGames ()
         {
+            ObservableCollection<SteamGame> res = new ObservableCollection<SteamGame>();
             try
             {
-                using (RegistryKey gameKey = Registry.CurrentUser.OpenSubKey(_steamKey+@"\Apps\"+gameId))
+                using (RegistryKey steamKey = Registry.CurrentUser.OpenSubKey(_steamKey + @"\Apps"))
                 {
                     //if it does exist, retrieve the stored values  
-                    if (gameKey != null)
+                    if (steamKey != null)
                     {
-                        object name = null;
-                        if ((name = gameKey.GetValue("Name")) != null)
+                        foreach (string gameKeyName in steamKey.GetSubKeyNames())
                         {
-                            gameKey.Close();
-                            return name.ToString();
+                            using (RegistryKey gameKey = steamKey.OpenSubKey(gameKeyName))
+                            {
+                                object installedVal = gameKey.GetValue("Installed");
+                                if (installedVal != null && installedVal.ToString().Equals("1"))
+                                {
+                                    //Game should be installed
+                                    object nameVal = gameKey.GetValue("Name");
+                                    if (nameVal != null)
+                                    {
+                                        res.Add(new SteamGame(nameVal.ToString(), gameKeyName));
+                                    }
+                                }
+                                gameKey.Close();
+                            }
                         }
                     }
+                    steamKey.Close();
                 }
             }
             catch (Exception exception)
@@ -60,7 +74,7 @@ namespace SaveSwitcher2
                 MessageBox.Show(exception.Message);
             }
 
-            return null;
+            return res;
         }
     }
 }
