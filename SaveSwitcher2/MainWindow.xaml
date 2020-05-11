@@ -200,7 +200,6 @@
                             IsReadOnly="True"
                             SelectionUnit="FullRow"
                             AutoGenerateColumns="False"
-                            SelectionChanged="StoredSavesDataGrid_OnSelectionChanged"
                             SelectedItem="{Binding SelectedItem}">
                             <DataGrid.Columns>
                                 <materialDesign:DataGridTextColumn

@@ -22,6 +22,7 @@ using MaterialDesignThemes.Wpf;
 using Microsoft.Win32;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using SaveSwitcher2.Annotations;
+using FileNotFoundException = System.IO.FileNotFoundException;
 using Path = System.IO.Path;
 
 namespace SaveSwitcher2
@@ -100,7 +101,7 @@ namespace SaveSwitcher2
         {
             InitializeComponent();
             DataContext = this;
-            LaunchGameEvent += OnLaunchGameEvent;
+
             ToggleProcess("Initializing", true);
 
             StoredSaves = FileService.LoadStoredSaves();
@@ -158,18 +159,14 @@ namespace SaveSwitcher2
         }
 
         #region launchgame
-
-
-
-
         private void Launch_OnClick(object sender, RoutedEventArgs e)
         {
             LaunchEnabled = false;
-            ToggleProcess("Game running", true);
-            InvokeLaunchGameEvent(EventArgs.Empty);
+            ToggleProcess("Game running (Max. startup time: 20s)", true);
+            OnLaunchGameEvent();
         }
 
-        private async void OnLaunchGameEvent(object sender, EventArgs e)
+        private async void OnLaunchGameEvent()
         {
             var process = new Process
             {
@@ -189,46 +186,49 @@ namespace SaveSwitcher2
                 }
                 else
                 {
-                    string compareId = "";
+                    int counter = 0;
                     string runId = null;
-                    while ((runId = RegistryService.CheckSteamRunning()) != null && !runId.Equals(compareId))
+                    while ((runId = RegistryService.CheckSteamRunning()) != null && runId.Equals("0"))
                     {
-                        if (!runId.Equals("0"))
+                        if (counter++ > 20)
                         {
-                            compareId = "0";
+                            throw new Exception();
                         }
-
+                        Thread.Sleep(1000);
+                    }
+                    while ((runId = RegistryService.CheckSteamRunning()) != null && !runId.Equals("0"))
+                    {
                         Thread.Sleep(1000);
                     }
                 }
 
                 Unsynced = false;
                 if (AutoSyncChecked)
+                {
+                    ToggleProcess("Game closed. Synchronizing Backup.", true);
+                    try
                     {
-                        ToggleProcess("Game closed. Synchronizing Backup.", true);
-                        try
-                        {
-                            FileService.StoreSaveFile(SavePath, ActiveSave.Name);
-                        }
-                        catch (FileNotFoundException ex)
-                        {
-                            MessageBox.Show(ex.Message);
-                        }
+                        FileService.StoreSaveFile(SavePath, ActiveSave.Name);
                     }
-                    else if (Boolean.Parse((string) await MaterialDesignThemes.Wpf.DialogHost.Show(
-                        new MessageContainer("Do you want to refresh the backup for profile '" + ActiveLabelText +
-                                             "'? (overwrite)"), "YesNoDialog")))
+                    catch (FileNotFoundException ex)
                     {
-                        ToggleProcess("Synchronizing Backup.", true);
-                        try
-                        {
-                            FileService.StoreSaveFile(SavePath, ActiveSave.Name);
-                        }
-                        catch (FileNotFoundException ex)
-                        {
-                            MessageBox.Show(ex.Message);
-                        }
+                        MessageBox.Show(ex.Message);
                     }
+                }
+                else if (Boolean.Parse((string) await MaterialDesignThemes.Wpf.DialogHost.Show(
+                    new MessageContainer("Do you want to refresh the backup for profile '" + ActiveLabelText +
+                                         "'? (overwrite)"), "YesNoDialog")))
+                {
+                    ToggleProcess("Synchronizing Backup.", true);
+                    try
+                    {
+                        FileService.StoreSaveFile(SavePath, ActiveSave.Name);
+                    }
+                    catch (FileNotFoundException ex)
+                    {
+                        MessageBox.Show(ex.Message);
+                    }
+                }
                 else
                 {
                     //FileService.SaveActive(null);
@@ -243,17 +243,6 @@ namespace SaveSwitcher2
             RefreshDataSet();
             ToggleProcess();
             LaunchEnabled = true;
-        }
-
-        public event EventHandler<EventArgs> LaunchGameEvent;
-
-        protected virtual void InvokeLaunchGameEvent(EventArgs e)
-        {
-            // Event will be null if there are no subscribers
-            if (LaunchGameEvent != null)
-            {
-                LaunchGameEvent.Invoke(this, e);
-            }
         }
 
         #endregion
@@ -297,14 +286,38 @@ namespace SaveSwitcher2
             }
             _pathChanged = false;
         }
+
         private void SteamToggleButton_OnClick(object sender, RoutedEventArgs e)
         {
             FileService.SavePath(GamePathTextBox.Text, SavePathTextBox.Text, SteamPath, SteamGameSelected);
         }
 
+        private void SavePathTextBox_OnGotFocus(object sender, RoutedEventArgs e)
+        {
+
+            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
+            dialog.InitialDirectory = SavePath;
+            dialog.IsFolderPicker = true;
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                SavePath = dialog.FileName;
+            }
+        }
+
+        private void GamePathTextBox_OnGotFocus(object sender, RoutedEventArgs e)
+        {
+            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
+            dialog.InitialDirectory = GamePath;
+            dialog.IsFolderPicker = false;
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                GamePath = dialog.FileName;
+            }
+
+        }
         #endregion
 
-
+        #region ButtonListeners
         private void EditButton_OnClick(object sender, RoutedEventArgs e)
         {
             DialogName = SelectedItem.Name.ToString();
@@ -336,11 +349,6 @@ namespace SaveSwitcher2
             DialogSaveEnabled = false;
             DialogLabelText = "New Profile";
             IsDialogOpen = true;
-        }
-
-        private void StoredSavesDataGrid_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
         }
 
         private async void RefreshButton_OnClick(object sender, RoutedEventArgs e)
@@ -396,7 +404,9 @@ namespace SaveSwitcher2
 
             Unsynced = false;
         }
+        #endregion
 
+        #region DialogStuff
         public bool IsDialogOpen { get; set; }
 
         public string DialogName { get; set; }
@@ -471,6 +481,16 @@ namespace SaveSwitcher2
             DialogName = null;
             _dialogBackupName = null;
         }
+        private void DialogNameTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
+        {
+            DialogSaveEnabled = !DialogNameTextBox.Text.Equals("") &&
+                                !DialogNameTextBox.Text.Equals(_dialogBackupName) &&
+                                !DialogNameTextBox.Text.Equals(ActiveLabelText);
+            //For some reason property is correct in messagebox but not when being assigned.
+            //DialogSaveEnabled = !DialogNameTextBox.Text.Equals("") && DialogContentChanged;
+            //MessageBox.Show("" + DialogContentChanged);
+        }
+        #endregion
 
         private void RefreshDataSet()
         {
@@ -482,17 +502,7 @@ namespace SaveSwitcher2
             if (storedActive != null) ActiveSave = StoredSaves.FirstOrDefault(x => x.Name.Equals(storedActive.Name));
         }
 
-        private void DialogNameTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
-        {
-            DialogSaveEnabled = !DialogNameTextBox.Text.Equals("") &&
-                                !DialogNameTextBox.Text.Equals(_dialogBackupName) &&
-                                !DialogNameTextBox.Text.Equals(ActiveLabelText);
-            //For some reason property is correct in messagebox but not when being assigned.
-            //DialogSaveEnabled = !DialogNameTextBox.Text.Equals("") && DialogContentChanged;
-            //MessageBox.Show("" + DialogContentChanged);
-        }
-
-        private void ToggleProcess(string name = null, bool on = false)
+        private async void ToggleProcess(string name = null, bool on = false)
         {
             string finishedHeader = "Finished: ";
             string newName = name != null ? name : InfoLabelText;
@@ -502,30 +512,5 @@ namespace SaveSwitcher2
             ExtensionMethods.Refresh(InfoLabel);
             ExtensionMethods.Refresh(ProcessPanel);
         }
-        private void SavePathTextBox_OnGotFocus(object sender, RoutedEventArgs e)
-        {
-
-            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
-            dialog.InitialDirectory = SavePath;
-            dialog.IsFolderPicker = true;
-            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-            {
-                SavePath = dialog.FileName;
-            }
-        }
-
-        private void GamePathTextBox_OnGotFocus(object sender, RoutedEventArgs e)
-        {
-            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
-            dialog.InitialDirectory = GamePath;
-            dialog.IsFolderPicker = false;
-            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-            {
-                GamePath = dialog.FileName;
-            }
-
-        }
-
-
     }
 }
