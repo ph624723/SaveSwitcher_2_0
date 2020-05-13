@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
 using Microsoft.Win32;
 using SaveSwitcher2.Model;
@@ -58,10 +59,16 @@ namespace SaveSwitcher2.Services
                                     {
                                         res.Add(new SteamGame(nameVal.ToString(), gameKeyName));
                                     }
+                                    else
+                                    {
+                                        res.Add(new SteamGame("Steam GameID: "+gameKeyName, gameKeyName));
+                                    }
                                 }
                                 gameKey.Close();
                             }
                         }
+
+                        res = new ObservableCollection<SteamGame>(res.OrderBy( x=> x.Name));
                     }
                     steamKey.Close();
                 }
