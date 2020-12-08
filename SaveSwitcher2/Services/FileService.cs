@@ -24,7 +24,7 @@ namespace SaveSwitcher2.Services
         }
 
         private static string _fallbackSavesPath =
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "The Witcher 3\\gamesaves");
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Cyberpunk 2077\\saves");
 
         public static string FallbackSavesPath
         {
