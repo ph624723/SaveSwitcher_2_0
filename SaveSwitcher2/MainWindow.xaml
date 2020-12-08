@@ -330,6 +330,7 @@
                             Margin="10">
                             <CheckBox Content="Autosync backup after closing"
                                       Margin="10"
+                                      Style="{StaticResource MaterialDesignAccentCheckBox}"
                                       VerticalAlignment="Bottom"
                                       IsChecked="{Binding AutoSyncChecked}"/>
                             <Button

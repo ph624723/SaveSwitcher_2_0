@@ -8,7 +8,7 @@
     <ProjectGuid>{6A2F803C-C619-40B5-B173-313CC88746CE}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>SaveSwitcher2</RootNamespace>
-    <AssemblyName>Witcher 3 - SaveSwitcher 2</AssemblyName>
+    <AssemblyName>Cyberpunk 2077 - SaveSwitcher 2</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -66,7 +66,7 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>b0ff6bdb2da01a5924a7f67359af45b8c69ff5b9.ico</ApplicationIcon>
+    <ApplicationIcon>CP2077.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="MaterialDesignColors, Version=1.2.4.1361, Culture=neutral, processorArchitecture=MSIL">
@@ -159,7 +159,7 @@
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">
       <Visible>False</Visible>
-      <ProductName>Microsoft .NET Framework 4.7.2 %28x86 und x64%29</ProductName>
+      <ProductName>Microsoft .NET Framework 4.7.2 %28x86 and x64%29</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
@@ -173,6 +173,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Views\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="CP2077.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="packages\MaterialDesignThemes.3.1.1\build\MaterialDesignThemes.targets" Condition="Exists('packages\MaterialDesignThemes.3.1.1\build\MaterialDesignThemes.targets')" />
