@@ -55,14 +55,18 @@ namespace SaveSwitcher2.Services
                                 {
                                     //Game should be installed
                                     object nameVal = gameKey.GetValue("Name");
-                                    if (nameVal != null)
+                                    if (nameVal == null)
                                     {
-                                        res.Add(new SteamGame(nameVal.ToString(), gameKeyName));
+                                        if (gameKeyName.Equals("1091500"))
+                                        {
+                                            nameVal = "Cyberpunk 2077";
+                                        }
+                                        else
+                                        {
+                                            nameVal = "Steam GameID: " + gameKeyName;
+                                        }
                                     }
-                                    else
-                                    {
-                                        res.Add(new SteamGame("Steam GameID: "+gameKeyName, gameKeyName));
-                                    }
+                                    res.Add(new SteamGame(nameVal.ToString(), gameKeyName));
                                 }
                                 gameKey.Close();
                             }
