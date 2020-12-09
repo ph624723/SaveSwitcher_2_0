@@ -62,6 +62,17 @@ namespace SaveSwitcher2.Services
                 return readPath();
 
             }
+
+            try
+            {
+                var tmp = new DirectoryInfo(paths[1]);
+            }
+            catch (Exception e)
+            {
+                SavePath(paths[0], _fallbackSavesPath, paths[3], Boolean.Parse(paths[2]));
+                return readPath();
+            }
+
             return paths;
         }
 

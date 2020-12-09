@@ -156,6 +156,11 @@ namespace SaveSwitcher2
             else if (!new DirectoryInfo(SavePath).Exists)
             {
                 DrawerHost.IsTopDrawerOpen = true;
+                if (storedActive != null)
+                {
+                    MessageBox.Show("Warning: \nSavegame directory '" + SavePath + "' does not seem to exist.");
+                    FileService.SaveActive(null);
+                }
             }
 
             ToggleProcess();
