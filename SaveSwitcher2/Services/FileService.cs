@@ -16,7 +16,7 @@ namespace SaveSwitcher2.Services
 
         private static string _fallbackGamePath =
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
-                "GalaxyClient\\Games\\The Witcher 3 Wild Hunt\\bin\\x64\\witcher3.exe");
+                "GalaxyClient\\Games\\Cyberpunk 2077\\cp2077.exe");
 
         public static string FallbackGamePath
         {
@@ -31,7 +31,7 @@ namespace SaveSwitcher2.Services
             get { return _fallbackSavesPath; }
         }
 
-        private static string _fallbackSteamPath = "292030";
+        private static string _fallbackSteamPath = "1091500";
         public static string FallbackSteamPath
         {
             get { return _fallbackSteamPath; }
