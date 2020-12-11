@@ -174,7 +174,7 @@ namespace SaveSwitcher2
 
             if (!FileService.HasBeenStartedBefore())
             {
-                WhereAreMyBackups("You seem to be starting this version of the SaveSwitcher for the first time.");
+                WhereAreMyBackups("You seem to be starting this version of the SaveSwitcher for the first time. \n");
             }
         }
 
