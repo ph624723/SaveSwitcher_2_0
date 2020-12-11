@@ -12,7 +12,7 @@ namespace SaveSwitcher2.Services
 
         private static string _pathStr = "GamePaths.txt";
         private static string _activeSavePath = "ActiveSave.txt";
-        private static string _storePath = "Savegames";
+        private static string _storePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SaveSwitcher2\\CP77\\Savegames");
 
         private static string _fallbackGamePath =
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
