@@ -127,30 +127,37 @@ namespace SaveSwitcher2
             if (storedActive != null && new DirectoryInfo(SavePath).Exists)
             {
                 ActiveSave = StoredSaves.FirstOrDefault(x => x.Name.Equals(storedActive.Name));
-                if (new DirectoryInfo(SavePath).LastWriteTime > ActiveSave.LastChangedDate)
+                if (ActiveSave != null)
                 {
-                    //MessageBox.Show(new DirectoryInfo(SavePath).LastWriteTime +" " + ActiveSave.LastChangedDate);
-                    string tmpName = FileService.FindNewProfileName("Online_Save");
-                    try
+                    if (new DirectoryInfo(SavePath).LastWriteTime > ActiveSave.LastChangedDate)
                     {
-                        FileService.StoreSaveFile(SavePath, tmpName);
-                        RefreshDataSet();
-                        ActiveSave = StoredSaves.FirstOrDefault(x => x.Name.Equals(tmpName));
-                        FileService.SaveActive(ActiveSave);
+                        //MessageBox.Show(new DirectoryInfo(SavePath).LastWriteTime +" " + ActiveSave.LastChangedDate);
+                        string tmpName = FileService.FindNewProfileName("Online_Save");
+                        try
+                        {
+                            FileService.StoreSaveFile(SavePath, tmpName);
+                            RefreshDataSet();
+                            ActiveSave = StoredSaves.FirstOrDefault(x => x.Name.Equals(tmpName));
+                            FileService.SaveActive(ActiveSave);
 
-                        DialogName = tmpName.ToString();
-                        _dialogBackupName = tmpName.ToString();
-                        DialogSaveEnabled = false;
-                        DialogLabelText =
-                            "Active save seems to be newer than stored backup. \nProbably due to online synchronyzation. \nSelect a profile name for the found data \nor click away for automatic naming.";
-                        IsDialogOpen = true;
-                    }
-                    catch (FileNotFoundException e)
-                    {
-                        MessageBox.Show(e.Message);
-                        ActiveSave = null;
-                    }
+                            DialogName = tmpName.ToString();
+                            _dialogBackupName = tmpName.ToString();
+                            DialogSaveEnabled = false;
+                            DialogLabelText =
+                                "Active save seems to be newer than stored backup. \nProbably due to online synchronyzation. \nSelect a profile name for the found data \nor click away for automatic naming.";
+                            IsDialogOpen = true;
+                        }
+                        catch (FileNotFoundException e)
+                        {
+                            MessageBox.Show(e.Message);
+                            ActiveSave = null;
+                        }
 
+                    }
+                }
+                else
+                {
+                    FileService.SaveActive(null);
                 }
             }
             else if (!new DirectoryInfo(SavePath).Exists)
