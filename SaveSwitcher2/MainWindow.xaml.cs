@@ -171,6 +171,14 @@ namespace SaveSwitcher2
             }
 
             ToggleProcess();
+
+            if (!FileService.HasBeenStartedBefore())
+            {
+                var curDir = new DirectoryInfo(System.AppDomain.CurrentDomain.BaseDirectory);
+                Process.Start("explorer.exe", curDir.Parent.FullName);
+                MessageBox.Show(
+                    "You seem to be starting this version of the SaveSwitcher for the first time. In case you just upgraded from version 2.0.11.1 or older, your backups might still be located in a deprecated directory. With this version they have been moved to: \n'"+FileService.StorePath+"' \n for easier access. That way they can also be kept automatically when updating the app. \n To access your old backups please copy them to the new directory. Look for a folder called 'Savegames' in: \n '" + Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Apps\\2.0\\*Profilename*")+"' \n The folder to look in should just have opened.");
+            }
         }
 
         #region launchgame

@@ -14,6 +14,11 @@ namespace SaveSwitcher2.Services
         private static string _activeSavePath = "ActiveSave.txt";
         private static string _storePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SaveSwitcher2\\CP77\\Savegames");
 
+        public static string StorePath
+        {
+            get => _storePath;
+        }
+
         private static string _fallbackGamePath =
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
                 "GalaxyClient\\Games\\Cyberpunk 2077\\bin\\x64\\Cyberpunk2077.exe");
@@ -262,6 +267,24 @@ namespace SaveSwitcher2.Services
             }
 
             return res;
+        }
+
+        public static bool HasBeenStartedBefore()
+        {
+            string hasBeenStartedPath = "V2_0_12_0.txt";
+
+            FileInfo hasBeenStartedInfo = new FileInfo(hasBeenStartedPath);
+
+            if (!hasBeenStartedInfo.Exists)
+            {
+                StreamWriter tmp = hasBeenStartedInfo.CreateText();
+                tmp.Close();
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
     }
 }
