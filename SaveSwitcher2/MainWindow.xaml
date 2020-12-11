@@ -360,10 +360,20 @@
                             Change gamepaths
                         </Button>
                     </materialDesign:Badged>
-                    
-                    
-                 
-                </Grid>
+                    <Button
+                        Name="WhereAreMyBackupsButton"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        Click="WhereAreMyBackupsButton_OnClick"
+                        Style="{StaticResource MaterialDesignRaisedLightButton}"
+                        ToolTip="Help in case you are missing your backups after updating the app"
+                        Margin="10">
+                        Where are my backups?
+                    </Button>
+
+
+
+                    </Grid>
             </materialDesign:DrawerHost>
             </materialDesign:DialogHost>
         </materialDesign:DialogHost>
