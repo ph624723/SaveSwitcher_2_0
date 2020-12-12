@@ -21,7 +21,7 @@ namespace SaveSwitcher2.Services
 
         private static string _fallbackGamePath =
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
-                "GalaxyClient\\Games\\Cyberpunk 2077\\bin\\x64\\Cyberpunk2077.exe");
+                "GOG Galaxy\\Games\\Cyberpunk 2077\\bin\\x64\\Cyberpunk2077.exe");
 
         public static string FallbackGamePath
         {
