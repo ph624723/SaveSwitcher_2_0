@@ -90,9 +90,11 @@ namespace SaveSwitcher2
         }
         public bool Unsynced { get; set; }
 
+        public TimeSpan UnsyncedPlaytime { get; set; }
+
         public string ActiveLabelText
         {
-            get { return ActiveSave != null ? ActiveSave.Name + (Unsynced? " (Backup unsynced)": "") : ""; }
+            get { return ActiveSave != null ? ActiveSave.Name + (Unsynced? " (Unsynced Playtime: "+((int)UnsyncedPlaytime.TotalHours)+"h "+UnsyncedPlaytime.Minutes+"m)": "") : ""; }
         }
 
         public string DialogLabelText { get; set; }
@@ -232,12 +234,13 @@ namespace SaveSwitcher2
                     ToggleProcess("Game closed. Synchronizing Backup.", true);
                     try
                     {
-                        FileService.StoreSaveFile(SavePath, ActiveSave.Name, ActiveSave.PlayTime + runDuration);
+                        FileService.StoreSaveFile(SavePath, ActiveSave.Name, ActiveSave.PlayTime + runDuration + UnsyncedPlaytime);
                     }
                     catch (FileNotFoundException ex)
                     {
                         MessageBox.Show(ex.Message);
                     }
+                    UnsyncedPlaytime = TimeSpan.Zero;
                 }
                 else if (Boolean.Parse((string) await MaterialDesignThemes.Wpf.DialogHost.Show(
                     new MessageContainer("Do you want to refresh the backup for profile '" + ActiveLabelText +
@@ -246,17 +249,19 @@ namespace SaveSwitcher2
                     ToggleProcess("Synchronizing Backup.", true);
                     try
                     {
-                        FileService.StoreSaveFile(SavePath, ActiveSave.Name, ActiveSave.PlayTime + runDuration);
+                        FileService.StoreSaveFile(SavePath, ActiveSave.Name, ActiveSave.PlayTime + runDuration + UnsyncedPlaytime);
                     }
                     catch (FileNotFoundException ex)
                     {
                         MessageBox.Show(ex.Message);
                     }
+                    UnsyncedPlaytime = TimeSpan.Zero;
                 }
                 else
                 {
                     //FileService.SaveActive(null);
                     Unsynced = true;
+                    UnsyncedPlaytime += runDuration;
                 }
             }
             catch (Exception ex)
@@ -384,7 +389,7 @@ namespace SaveSwitcher2
             //store new data
             try
             {
-                FileService.StoreSaveFile(SavePath, SelectedItem.Name, ActiveSave != null? ActiveSave.PlayTime : TimeSpan.Zero ,null);
+                FileService.StoreSaveFile(SavePath, SelectedItem.Name, ActiveSave != null? ActiveSave.PlayTime + UnsyncedPlaytime : TimeSpan.Zero ,null);
             }
             catch (FileNotFoundException ex)
             {
@@ -395,6 +400,7 @@ namespace SaveSwitcher2
 
             FileService.SaveActive(new StoredSave(SelectedItem.Name, DateTime.Now));
             Unsynced = false;
+            UnsyncedPlaytime = TimeSpan.Zero;
             RefreshDataSet();
             ToggleProcess();
         }
@@ -427,6 +433,7 @@ namespace SaveSwitcher2
             }
 
             Unsynced = false;
+            UnsyncedPlaytime = TimeSpan.Zero;
         }
         #endregion
 
@@ -480,7 +487,10 @@ namespace SaveSwitcher2
                 //store new data
                 try
                 {
-                    if (overwritePlaytime) FileService.StoreSaveFile(SavePath, DialogName, TimeSpan.Zero,_dialogBackupName);
+                    if (overwritePlaytime)
+                    {
+                        FileService.StoreSaveFile(SavePath, DialogName, ActiveSave != null ? ActiveSave.PlayTime+UnsyncedPlaytime : TimeSpan.Zero,_dialogBackupName);
+                    }
                     else FileService.StoreSaveFile(SavePath, DialogName, oldName:_dialogBackupName);
                 }
                 catch (FileNotFoundException ex)
@@ -502,6 +512,7 @@ namespace SaveSwitcher2
                     //addbutton
                     FileService.SaveActive(new StoredSave(DialogName, DateTime.Now));
                     Unsynced = false;
+                    UnsyncedPlaytime = TimeSpan.Zero;
                 }
 
                 RefreshDataSet();
