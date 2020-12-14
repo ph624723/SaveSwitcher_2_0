@@ -452,7 +452,12 @@ namespace SaveSwitcher2
                     new MessageContainer("Do you want to overwrite profile '" + DialogName + "'?"), "YesNoDialog")))
                 {
                     IsDialogOpen = false;
-                    FinishDialog(true);
+                    bool overwritePlaytime = Boolean.Parse((string) await MaterialDesignThemes.Wpf.DialogHost.Show(
+                        new MessageContainer("Do you want to overwrite/reset the old playtime of profile '" +
+                                             DialogName + "'?"),
+                        "YesNoDialog"));
+
+                        FinishDialog(true, overwritePlaytime);
                 }
             }
             else
@@ -467,7 +472,7 @@ namespace SaveSwitcher2
             FinishDialog();
         }
 
-        private void FinishDialog(bool saving = false)
+        private void FinishDialog(bool saving = false, bool overwritePlaytime = true)
         {
             if (saving)
             {
@@ -475,7 +480,8 @@ namespace SaveSwitcher2
                 //store new data
                 try
                 {
-                    FileService.StoreSaveFile(SavePath, DialogName, TimeSpan.Zero ,_dialogBackupName);
+                    if (overwritePlaytime) FileService.StoreSaveFile(SavePath, DialogName, TimeSpan.Zero,_dialogBackupName);
+                    else FileService.StoreSaveFile(SavePath, DialogName, oldName:_dialogBackupName);
                 }
                 catch (FileNotFoundException ex)
                 {
