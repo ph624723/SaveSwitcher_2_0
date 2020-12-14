@@ -35,6 +35,7 @@ namespace SaveSwitcher2
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
+        TimeService _timeService = new TimeService();
         public string SteamPath { get; set; }
         public string GamePath { get; set; }
         public string SavePath { get; set; }
@@ -135,7 +136,7 @@ namespace SaveSwitcher2
                         string tmpName = FileService.FindNewProfileName("Online_Save");
                         try
                         {
-                            FileService.StoreSaveFile(SavePath, tmpName);
+                            FileService.StoreSaveFile(SavePath, tmpName, TimeSpan.Zero);
                             RefreshDataSet();
                             ActiveSave = StoredSaves.FirstOrDefault(x => x.Name.Equals(tmpName));
                             FileService.SaveActive(ActiveSave);
@@ -199,6 +200,7 @@ namespace SaveSwitcher2
             };
             try
             {
+                _timeService.Start();
                 process.Start();
                 if (!SteamGameSelected)
                 {
@@ -222,13 +224,15 @@ namespace SaveSwitcher2
                     }
                 }
 
+                TimeSpan runDuration = _timeService.End() + TimeSpan.FromMinutes(1);
+
                 Unsynced = false;
                 if (AutoSyncChecked)
                 {
                     ToggleProcess("Game closed. Synchronizing Backup.", true);
                     try
                     {
-                        FileService.StoreSaveFile(SavePath, ActiveSave.Name);
+                        FileService.StoreSaveFile(SavePath, ActiveSave.Name, ActiveSave.PlayTime + runDuration);
                     }
                     catch (FileNotFoundException ex)
                     {
@@ -242,7 +246,7 @@ namespace SaveSwitcher2
                     ToggleProcess("Synchronizing Backup.", true);
                     try
                     {
-                        FileService.StoreSaveFile(SavePath, ActiveSave.Name);
+                        FileService.StoreSaveFile(SavePath, ActiveSave.Name, ActiveSave.PlayTime + runDuration);
                     }
                     catch (FileNotFoundException ex)
                     {
@@ -380,7 +384,7 @@ namespace SaveSwitcher2
             //store new data
             try
             {
-                FileService.StoreSaveFile(SavePath, SelectedItem.Name, null);
+                FileService.StoreSaveFile(SavePath, SelectedItem.Name, ActiveSave != null? ActiveSave.PlayTime : TimeSpan.Zero ,null);
             }
             catch (FileNotFoundException ex)
             {
@@ -471,7 +475,7 @@ namespace SaveSwitcher2
                 //store new data
                 try
                 {
-                    FileService.StoreSaveFile(SavePath, DialogName, _dialogBackupName);
+                    FileService.StoreSaveFile(SavePath, DialogName, TimeSpan.Zero ,_dialogBackupName);
                 }
                 catch (FileNotFoundException ex)
                 {

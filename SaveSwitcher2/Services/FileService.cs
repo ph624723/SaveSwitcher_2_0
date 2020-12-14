@@ -133,7 +133,8 @@ namespace SaveSwitcher2.Services
         /// <param name="savePath"></param>
         /// <param name="name"></param>
         /// <param name="oldName"></param>
-        public static void StoreSaveFile(string savePath,string name, string oldName = null)
+        /// <param name="playtime"></param>
+        public static void StoreSaveFile(string savePath,string name, TimeSpan playtime, string oldName = null)
         {
             string targetPath = Path.Combine(_storePath, name);
             DirectoryInfo targetDir = new DirectoryInfo(targetPath);
@@ -149,6 +150,7 @@ namespace SaveSwitcher2.Services
                 if (targetDir.Exists) targetDir.Delete(recursive: true);
                 targetDir.Create();
                 DirectoryCopy(sourcePath, targetDir.FullName);
+                playtime = ReadPlaytime(oldName);
                 DeleteSaveFile(oldName);
             }
             else
@@ -162,6 +164,7 @@ namespace SaveSwitcher2.Services
                 targetDir.Create();
                 DirectoryCopy(sourcePath, targetDir.FullName);
             }
+            WritePlaytime(name, playtime);
         }
 
         public static void LoadSaveFile(string savePath, string name)
@@ -188,6 +191,7 @@ namespace SaveSwitcher2.Services
         {
             DirectoryInfo dir = new DirectoryInfo(Path.Combine(_storePath,name));
             if (dir.Exists) dir.Delete(true);
+            DeletePlaytime(name);
         }
 
         public static List<StoredSave> LoadStoredSaves()
@@ -203,7 +207,9 @@ namespace SaveSwitcher2.Services
             DirectoryInfo[] dirs = dir.GetDirectories();
             foreach (DirectoryInfo subDir in dirs)
             {
-                storedsaves.Add(new StoredSave(subDir.Name,subDir.LastWriteTime));
+                StoredSave save = new StoredSave(subDir.Name, subDir.LastWriteTime);
+                save.PlayTime = ReadPlaytime(save.Name);
+                storedsaves.Add(save);
             }
 
             return storedsaves;
@@ -271,7 +277,7 @@ namespace SaveSwitcher2.Services
 
         public static bool HasBeenStartedBefore()
         {
-            string hasBeenStartedPath = "V2_0_12_0.txt";
+            string hasBeenStartedPath = "V2_0_12_2.txt";
 
             FileInfo hasBeenStartedInfo = new FileInfo(hasBeenStartedPath);
 
@@ -285,6 +291,54 @@ namespace SaveSwitcher2.Services
             {
                 return true;
             }
+        }
+
+        public static TimeSpan ReadPlaytime(string name)
+        {
+            FileInfo file = new FileInfo(Path.Combine(_storePath, name+".txt"));
+            if (!file.Exists)
+            {
+                return TimeSpan.Zero;
+            }
+
+            StreamReader sr = new StreamReader(file.FullName);
+            string timeString = sr.ReadLine();
+            sr.Close();
+
+            try
+            {
+                return TimeSpan.Parse(timeString);
+                }
+            catch (Exception e)
+            {
+                return TimeSpan.Zero;
+            }
+        }
+
+        public static void WritePlaytime(string name, TimeSpan playtime, string oldNameToDelete = null)
+        {
+            DirectoryInfo dir = new DirectoryInfo(Path.Combine(_storePath));
+            if (!dir.Exists)
+            {
+                dir.Create();
+            }
+
+            if (name != null)
+            {
+                FileInfo file = new FileInfo(Path.Combine(_storePath, name + ".txt"));
+                using (StreamWriter outputFile = file.CreateText())
+                {
+                     outputFile.WriteLine(playtime);
+                }
+            }
+
+            if (oldNameToDelete != null) DeletePlaytime(oldNameToDelete);
+        }
+
+        public static void DeletePlaytime(string name)
+        {
+            FileInfo file = new FileInfo(Path.Combine(_storePath, name + ".txt"));
+            if (file.Exists) file.Delete();
         }
     }
 }

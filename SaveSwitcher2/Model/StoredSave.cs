@@ -11,10 +11,18 @@ namespace SaveSwitcher2.Model
         {
             this.Name = name;
             this.LastChangedDate = date;
+            this.PlayTime = TimeSpan.Zero;
         }
 
         public string Name { get; set; }
         public DateTime LastChangedDate { get; set; }
+        public TimeSpan PlayTime { get; set; }
+
+        public string PlaytimeDisplay
+        {
+            get => ((int) PlayTime.TotalDays) + "d " + PlayTime.Hours + "h " + PlayTime.Minutes + "m";
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         [NotifyPropertyChangedInvocator]
@@ -37,6 +45,11 @@ namespace SaveSwitcher2.Model
         {
             return o is StoredSave && ((StoredSave) o).Name.Equals(this.Name) &&
                    equalDate(((StoredSave) o).LastChangedDate);
+        }
+
+        public void AddPlaytime(TimeSpan timeSpan)
+        {
+            PlayTime += timeSpan;
         }
     }
 }
