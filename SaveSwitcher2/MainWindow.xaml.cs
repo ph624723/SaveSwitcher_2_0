@@ -145,9 +145,10 @@ namespace SaveSwitcher2
 
                             DialogName = tmpName.ToString();
                             _dialogBackupName = tmpName.ToString();
+                            DialogCheckboxVisible = Visibility.Collapsed;
                             DialogSaveEnabled = false;
                             DialogLabelText =
-                                "Active save seems to be newer than stored backup. \nProbably due to online synchronyzation. \nSelect a profile name for the found data \nor click away for automatic naming.";
+                                "Active save seems to be newer than stored backup. \nProbably due to online synchronyzation. This will \nalso happen if you leave your backup unsynced \nwhen closing the app. \nSelect a profile name for the found data or click \naway for automatic naming.";
                             IsDialogOpen = true;
                         }
                         catch (FileNotFoundException e)
