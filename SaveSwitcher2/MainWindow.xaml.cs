@@ -500,7 +500,7 @@ namespace SaveSwitcher2
                 {
                     if (overwritePlaytime)
                     {
-                        FileService.StoreSaveFile(SavePath, DialogName, ActiveSave != null ? ActiveSave.PlayTime+UnsyncedPlaytime : TimeSpan.Zero,_dialogBackupName, !DialogDublicateSave);
+                        FileService.StoreSaveFile(SavePath, DialogName, ActiveSave != null && DialogDublicateSave ? ActiveSave.PlayTime+UnsyncedPlaytime : TimeSpan.Zero,_dialogBackupName, !DialogDublicateSave);
                     }
                     else FileService.StoreSaveFile(SavePath, DialogName, oldName:_dialogBackupName, clearProfile:!DialogDublicateSave);
                 }
