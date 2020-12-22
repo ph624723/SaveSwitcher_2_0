@@ -8,11 +8,14 @@ namespace SaveSwitcher2.Services
 {
     static class FileService
     {
-        
+
 
         private static string _pathStr = "GamePaths.txt";
         private static string _activeSavePath = "ActiveSave.txt";
-        private static string _storePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SaveSwitcher2\\CP77\\Savegames");
+
+        private static string _storePath =
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                "SaveSwitcher2\\CP77\\Savegames");
 
         public static string StorePath
         {
@@ -29,7 +32,8 @@ namespace SaveSwitcher2.Services
         }
 
         private static string _fallbackSavesPath =
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Saved Games\\CD Projekt Red\\Cyberpunk 2077");
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                "Saved Games\\CD Projekt Red\\Cyberpunk 2077");
 
         public static string FallbackSavesPath
         {
@@ -37,6 +41,7 @@ namespace SaveSwitcher2.Services
         }
 
         private static string _fallbackSteamPath = "1091500";
+
         public static string FallbackSteamPath
         {
             get { return _fallbackSteamPath; }
@@ -49,16 +54,17 @@ namespace SaveSwitcher2.Services
 
             if (!file.Exists)
             {
-                SavePath(_fallbackGamePath,_fallbackSavesPath, _fallbackSteamPath, false);
+                SavePath(_fallbackGamePath, _fallbackSavesPath, _fallbackSteamPath, false);
             }
 
             StreamReader sr = file.OpenText();
 
-            
+
             for (int i = 0; i < 4; i++)
             {
                 paths[i] = sr.ReadLine();
             }
+
             sr.Close();
 
             if (paths.Contains(null) || paths.Take(3).Contains(string.Empty))
@@ -85,7 +91,7 @@ namespace SaveSwitcher2.Services
         {
             FileInfo file = new FileInfo(_pathStr);
             using (StreamWriter outputFile = file.CreateText())
-            { 
+            {
                 outputFile.WriteLine(gamePath);
                 outputFile.WriteLine(savePath);
                 outputFile.WriteLine(steamToggle.ToString());
@@ -101,6 +107,7 @@ namespace SaveSwitcher2.Services
                 StreamWriter tmp = file.CreateText();
                 tmp.Close();
             }
+
             StreamReader sr = new StreamReader(_activeSavePath);
 
             string[] data = new string[2];
@@ -108,12 +115,14 @@ namespace SaveSwitcher2.Services
             {
                 data[i] = sr.ReadLine();
             }
+
             sr.Close();
 
             if (data.Contains(null) || data.Contains(string.Empty))
             {
                 return null;
             }
+
             return new StoredSave(data[0], DateTime.Parse(data[1]));
         }
 
@@ -122,8 +131,8 @@ namespace SaveSwitcher2.Services
             FileInfo file = new FileInfo(_activeSavePath);
             using (StreamWriter outputFile = file.CreateText())
             {
-                outputFile.WriteLine(active != null? active.Name : "");
-                if(active != null) outputFile.WriteLine(active.LastChangedDate);
+                outputFile.WriteLine(active != null ? active.Name : "");
+                if (active != null) outputFile.WriteLine(active.LastChangedDate);
             }
         }
 
@@ -134,7 +143,8 @@ namespace SaveSwitcher2.Services
         /// <param name="name"></param>
         /// <param name="oldName"></param>
         /// <param name="playtime"></param>
-        public static void StoreSaveFile(string savePath,string name, TimeSpan? playtime = null, string oldName = null, bool clearProfile = false)
+        public static void StoreSaveFile(string savePath, string name, TimeSpan? playtime = null, string oldName = null,
+            bool clearProfile = false)
         {
             string targetPath = Path.Combine(_storePath, name);
             DirectoryInfo targetDir = new DirectoryInfo(targetPath);
@@ -145,8 +155,10 @@ namespace SaveSwitcher2.Services
                 sourcePath = Path.Combine(_storePath, oldName);
                 if (!new DirectoryInfo(sourcePath).Exists)
                 {
-                    throw new FileNotFoundException("ERROR: Copy not successfull.\nSave profile '" + oldName + "' does not seem to exist.");
+                    throw new FileNotFoundException("ERROR: Copy not successfull.\nSave profile '" + oldName +
+                                                    "' does not seem to exist.");
                 }
+
                 if (targetDir.Exists) targetDir.Delete(recursive: true);
                 targetDir.Create();
                 DirectoryCopy(sourcePath, targetDir.FullName);
@@ -158,13 +170,16 @@ namespace SaveSwitcher2.Services
                 sourcePath = savePath;
                 if (!new DirectoryInfo(sourcePath).Exists)
                 {
-                    throw new FileNotFoundException("ERROR: Copy not successfull.\nPath '" + sourcePath + "' does not seem to exist.");
+                    throw new FileNotFoundException("ERROR: Copy not successfull.\nPath '" + sourcePath +
+                                                    "' does not seem to exist.");
                 }
+
                 if (targetDir.Exists) targetDir.Delete(recursive: true);
                 targetDir.Create();
                 if (!clearProfile) DirectoryCopy(sourcePath, targetDir.FullName);
             }
-            if (playtime != null ) WritePlaytime(name, (TimeSpan) playtime);
+
+            if (playtime != null) WritePlaytime(name, (TimeSpan) playtime);
         }
 
         public static void LoadSaveFile(string savePath, string name)
@@ -174,22 +189,25 @@ namespace SaveSwitcher2.Services
 
             if (!sourceDir.Exists)
             {
-                throw new FileNotFoundException("ERROR: Copy not successfull.\nSave profile '" + name+"' does not seem to exist.");
+                throw new FileNotFoundException("ERROR: Copy not successfull.\nSave profile '" + name +
+                                                "' does not seem to exist.");
             }
 
             if (!new DirectoryInfo(savePath).Exists)
             {
-                throw new FileNotFoundException("ERROR: Copy not successfull.\nPath '" + savePath + "' does not seem to exist.");
+                throw new FileNotFoundException("ERROR: Copy not successfull.\nPath '" + savePath +
+                                                "' does not seem to exist.");
             }
+
             ClearDirectory(new DirectoryInfo(savePath));
-            DirectoryCopy(sourceDir.FullName,savePath);
+            DirectoryCopy(sourceDir.FullName, savePath);
             //Necessary because game files are going to be new and will seem to have changed otherwise
-            Directory.SetLastWriteTime(sourceDir.FullName,DateTime.Now);
+            Directory.SetLastWriteTime(sourceDir.FullName, DateTime.Now);
         }
 
         public static void DeleteSaveFile(string name)
         {
-            DirectoryInfo dir = new DirectoryInfo(Path.Combine(_storePath,name));
+            DirectoryInfo dir = new DirectoryInfo(Path.Combine(_storePath, name));
             if (dir.Exists) dir.Delete(true);
             DeletePlaytime(name);
         }
@@ -221,6 +239,7 @@ namespace SaveSwitcher2.Services
             {
                 file.Delete();
             }
+
             foreach (DirectoryInfo subDir in dir.GetDirectories())
             {
                 subDir.Delete(true);
@@ -251,23 +270,23 @@ namespace SaveSwitcher2.Services
             foreach (FileInfo file in files)
             {
                 string temppath = Path.Combine(destDirName, file.Name);
-                file.CopyTo(temppath, overwrite:true);
+                file.CopyTo(temppath, overwrite: true);
             }
 
             //Subdirectories
-                foreach (DirectoryInfo subdir in subDirs)
-                {
-                    string temppath = Path.Combine(destDirName, subdir.Name);
-                    DirectoryCopy(subdir.FullName, temppath);
-                }
-            
+            foreach (DirectoryInfo subdir in subDirs)
+            {
+                string temppath = Path.Combine(destDirName, subdir.Name);
+                DirectoryCopy(subdir.FullName, temppath);
+            }
+
         }
 
         public static string FindNewProfileName(string baseName)
         {
             string res = baseName;
             int i = 2;
-            while (new DirectoryInfo(Path.Combine(_storePath,res)).Exists)
+            while (new DirectoryInfo(Path.Combine(_storePath, res)).Exists)
             {
                 res = baseName + "_" + i++;
             }
@@ -295,7 +314,7 @@ namespace SaveSwitcher2.Services
 
         public static TimeSpan ReadPlaytime(string name)
         {
-            FileInfo file = new FileInfo(Path.Combine(_storePath, name+".txt"));
+            FileInfo file = new FileInfo(Path.Combine(_storePath, name + ".txt"));
             if (!file.Exists)
             {
                 return TimeSpan.Zero;
@@ -308,7 +327,7 @@ namespace SaveSwitcher2.Services
             try
             {
                 return TimeSpan.Parse(timeString);
-                }
+            }
             catch (Exception e)
             {
                 return TimeSpan.Zero;
@@ -328,7 +347,7 @@ namespace SaveSwitcher2.Services
                 FileInfo file = new FileInfo(Path.Combine(_storePath, name + ".txt"));
                 using (StreamWriter outputFile = file.CreateText())
                 {
-                     outputFile.WriteLine(playtime);
+                    outputFile.WriteLine(playtime);
                 }
             }
 
@@ -339,6 +358,40 @@ namespace SaveSwitcher2.Services
         {
             FileInfo file = new FileInfo(Path.Combine(_storePath, name + ".txt"));
             if (file.Exists) file.Delete();
+        }
+
+        private static string _unsyncedPath = "unsynced.txt";
+
+        public static void WriteUnsynced(TimeSpan time)
+        {
+            FileInfo unsyncedInfo = new FileInfo(_unsyncedPath);
+
+                using (StreamWriter outputFile = unsyncedInfo.CreateText())
+                {
+                    outputFile.WriteLine(time);
+                }
+        }
+
+        public static TimeSpan ReadUnsynced()
+        {
+            FileInfo unsyncedInfo = new FileInfo(_unsyncedPath);
+            if (!unsyncedInfo.Exists)
+            {
+                return TimeSpan.Zero;
+            }
+
+            StreamReader sr = new StreamReader(unsyncedInfo.FullName);
+            string timeString = sr.ReadLine();
+            sr.Close();
+
+            try
+            {
+                return TimeSpan.Parse(timeString);
+            }
+            catch (Exception e)
+            {
+                return TimeSpan.Zero;
+            }
         }
     }
 }

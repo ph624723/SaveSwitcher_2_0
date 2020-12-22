@@ -90,7 +90,17 @@ namespace SaveSwitcher2
         }
         public bool Unsynced { get; set; }
 
-        public TimeSpan UnsyncedPlaytime { get; set; }
+        private TimeSpan _unsyncedPlaytime;
+
+        public TimeSpan UnsyncedPlaytime
+        {
+            get => _unsyncedPlaytime;
+            set
+            {
+                _unsyncedPlaytime = value;
+                FileService.WriteUnsynced(value);
+            }
+        }
 
         public string ActiveLabelText
         {
