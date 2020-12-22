@@ -84,7 +84,13 @@
                         Text="{Binding DialogName}"
                         TextChanged="DialogNameTextBox_OnTextChanged"
                         />
-                    <Button
+                        <CheckBox Content="Include current (active) savegames &#x0a;in new profile"
+                                  Visibility="{Binding DialogCheckboxVisible}"
+                              Margin="10"
+                              Style="{StaticResource MaterialDesignAccentCheckBox}"
+                                  ToolTip="Necessary to e.g. create your first profile, containing your preexisting savegames. &#x0a;Not checking this will create an empty profile.&#x0a;Be careful to backup your savegames before loading an empty profile."
+                                  IsChecked="{Binding DialogDublicateSave}"/>
+                        <Button
                         Style="{StaticResource MaterialDesignRaisedAccentButton}"
                         Width="100"
                         Margin="10"
@@ -279,7 +285,7 @@
                                 <Button
                                     Name="AddButton"
                                     Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}"
-                                    ToolTip="New profile, copy active save file"
+                                    ToolTip="New profile, copy active save file or create empty profile"
                                     Click="AddButton_OnClick"
                                     Margin="10">
                                     <materialDesign:PackIcon

@@ -134,7 +134,7 @@ namespace SaveSwitcher2.Services
         /// <param name="name"></param>
         /// <param name="oldName"></param>
         /// <param name="playtime"></param>
-        public static void StoreSaveFile(string savePath,string name, TimeSpan? playtime = null, string oldName = null)
+        public static void StoreSaveFile(string savePath,string name, TimeSpan? playtime = null, string oldName = null, bool clearProfile = false)
         {
             string targetPath = Path.Combine(_storePath, name);
             DirectoryInfo targetDir = new DirectoryInfo(targetPath);
@@ -162,7 +162,7 @@ namespace SaveSwitcher2.Services
                 }
                 if (targetDir.Exists) targetDir.Delete(recursive: true);
                 targetDir.Create();
-                DirectoryCopy(sourcePath, targetDir.FullName);
+                if (!clearProfile) DirectoryCopy(sourcePath, targetDir.FullName);
             }
             if (playtime != null ) WritePlaytime(name, (TimeSpan) playtime);
         }

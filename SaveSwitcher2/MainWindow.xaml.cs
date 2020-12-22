@@ -351,6 +351,7 @@ namespace SaveSwitcher2
         {
             DialogName = SelectedItem.Name.ToString();
             _dialogBackupName = SelectedItem.Name.ToString();
+            DialogCheckboxVisible = Visibility.Collapsed;
             DialogSaveEnabled = false;
             DialogLabelText = "Edit Profile: " + _dialogBackupName;
             IsDialogOpen = true;
@@ -375,6 +376,8 @@ namespace SaveSwitcher2
         {
             DialogName = "";
             _dialogBackupName = null;
+            DialogCheckboxVisible = Visibility.Visible;
+            DialogDublicateSave = true;
             DialogSaveEnabled = false;
             DialogLabelText = "New Profile";
             IsDialogOpen = true;
@@ -449,6 +452,10 @@ namespace SaveSwitcher2
             get { return _dialogBackupName != null ? !_dialogBackupName.Equals(DialogName) : true; }
         }
 
+        public bool DialogDublicateSave { get; set; }
+
+        public Visibility DialogCheckboxVisible { get; set; }
+
         public bool DialogSaveEnabled { get; set; }
 
         private async void DialogSaveButton_OnClick(object sender, RoutedEventArgs e)
@@ -483,15 +490,18 @@ namespace SaveSwitcher2
         {
             if (saving)
             {
+                bool clearNewProfile = false;
+
+
                 ToggleProcess("Saving Profile " + DialogName, true);
                 //store new data
                 try
                 {
                     if (overwritePlaytime)
                     {
-                        FileService.StoreSaveFile(SavePath, DialogName, ActiveSave != null ? ActiveSave.PlayTime+UnsyncedPlaytime : TimeSpan.Zero,_dialogBackupName);
+                        FileService.StoreSaveFile(SavePath, DialogName, ActiveSave != null ? ActiveSave.PlayTime+UnsyncedPlaytime : TimeSpan.Zero,_dialogBackupName, !DialogDublicateSave);
                     }
-                    else FileService.StoreSaveFile(SavePath, DialogName, oldName:_dialogBackupName);
+                    else FileService.StoreSaveFile(SavePath, DialogName, oldName:_dialogBackupName, clearProfile:!DialogDublicateSave);
                 }
                 catch (FileNotFoundException ex)
                 {
@@ -507,7 +517,7 @@ namespace SaveSwitcher2
                     ActiveSave.Name = DialogName;
                     FileService.SaveActive(ActiveSave);
                 }
-                else if (_dialogBackupName == null)
+                else if (_dialogBackupName == null && DialogDublicateSave)
                 {
                     //addbutton
                     FileService.SaveActive(new StoredSave(DialogName, DateTime.Now));
