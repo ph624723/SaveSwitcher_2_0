@@ -11,7 +11,7 @@ namespace SaveSwitcher2.Services
         
 
         private static string _pathStr = "GamePaths.txt";
-        private static string _activeSavePath = "ActiveSave.txt";
+        private static string _activeSavePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SaveSwitcher2\\CP77\\Misc\\ActiveSave.txt");
         private static string _storePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SaveSwitcher2\\CP77\\Savegames");
 
         public static string StorePath
@@ -98,6 +98,7 @@ namespace SaveSwitcher2.Services
             FileInfo file = new FileInfo(_activeSavePath);
             if (!file.Exists)
             {
+                if (!Directory.Exists(file.DirectoryName)) Directory.CreateDirectory(file.DirectoryName);
                 StreamWriter tmp = file.CreateText();
                 tmp.Close();
             }
@@ -120,6 +121,7 @@ namespace SaveSwitcher2.Services
         public static void SaveActive(StoredSave active)
         {
             FileInfo file = new FileInfo(_activeSavePath);
+            if (!Directory.Exists(file.DirectoryName)) Directory.CreateDirectory(file.DirectoryName);
             using (StreamWriter outputFile = file.CreateText())
             {
                 outputFile.WriteLine(active != null? active.Name : "");
